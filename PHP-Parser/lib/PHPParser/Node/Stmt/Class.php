@@ -78,6 +78,17 @@ class PHPParser_Node_Stmt_Class extends PHPParser_Node_Stmt
         return $methods;
     }
 
+    public function getProperties() {
+        $properties = array();
+        foreach ($this->stmts as $stmt) {
+            if ($stmt instanceof PHPParser_Node_Stmt_Property) {
+                $stmt = $stmt->props[0];
+                $properties[] = $stmt;
+            }
+        }
+        return $properties;
+    }
+
     public static function verifyModifier($a, $b) {
         if ($a & 7 && $b & 7) {
             throw new PHPParser_Error('Multiple access type modifiers are not allowed');
