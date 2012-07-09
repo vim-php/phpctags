@@ -83,6 +83,9 @@ class PHPCtags
             $kind = 'i';
             $name = $node->name;
             $line = $node->getLine() - 1;
+            foreach ($node as $subNode) {
+                $this->struct($subNode, $name);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
