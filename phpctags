@@ -1,0 +1,19 @@
+#!/usr/bin/php -q
+<?php
+include __DIR__ . '/PHP-Parser/lib/bootstrap.php';
+include __DIR__ . "/PHPCtags.class.php";
+
+$options = getopt('f:',array('version'));
+
+if(isset($options['version'])) {
+    echo <<<'EOF'
+Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
+Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
+EOF;
+    exit;
+}
+
+$file = realpath(array_pop($argv));
+
+$ctags = new PHPCtags($file);
+$ctags->export();

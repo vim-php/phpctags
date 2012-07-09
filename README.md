@@ -1,4 +1,4 @@
 phpctags
 ========
 
-A enhanced php ctags file generator.
+An enhanced php ctags file generator.
