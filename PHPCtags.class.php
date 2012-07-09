@@ -98,6 +98,15 @@ class PHPCtags
             } elseif (!empty($function_name)) {
                 $scope = "function:" . $function_name;
             }
+        } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
+            switch ($node->name) {
+                case 'define':
+                    $kind = 'd';
+                    $node = $node->args[0]->value;
+                    $name = $node->value;
+                    $line = $node->getLine() - 1;
+                    break;
+            }
         } else {
             // we don't care the rest of them.
         }
