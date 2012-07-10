@@ -5,7 +5,8 @@ class PHPCtags
 
     private $mParser;
 
-    public function __construct($file) {
+    public function __construct($file)
+    {
         //@todo Check for existence
         $this->mFile = $file;
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
@@ -111,7 +112,7 @@ class PHPCtags
             // we don't care the rest of them.
         }
 
-        if(!empty($kind) && !empty($name) && !empty($line)) {
+        if (!empty($kind) && !empty($name) && !empty($line)) {
             $structs[] = array(
                 'kind' => $kind,
                 'name' => $name,
@@ -124,7 +125,7 @@ class PHPCtags
         return $structs;
     }
 
-    private  function render($structs)
+    private function render($structs)
     {
         $str = '';
         $lines = file($this->mFile);
@@ -150,7 +151,7 @@ class PHPCtags
 
     public function export()
     {
-        $code =file_get_contents($this->mFile);
+        $code = file_get_contents($this->mFile);
         $stmts = $this->mParser->parse($code);
         $structs = $this->struct($stmts);
         echo $this->render($structs);
