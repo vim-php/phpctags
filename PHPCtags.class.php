@@ -31,7 +31,7 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Class) {
             $kind = 'c';
             $name = $node->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, $name);
             }
@@ -39,19 +39,19 @@ class PHPCtags
             $kind = 'v';
             $prop = $node->props[0];
             $name = $prop->name;
-            $line = $prop->getLine() - 1;
+            $line = $prop->getLine();
             $scope = "class:" . $class_name;
             $access = $this->getAccess($node);
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassConst) {
             $kind = 'd';
             $cons = $node->consts[0];
             $name = $cons->name;
-            $line = $cons->getLine() - 1;
+            $line = $cons->getLine();
             $scope = "class:" . $class_name;
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassMethod) {
             $kind = 'f';
             $name = $node->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
             $scope = "class:" . $class_name;
             $access = $this->getAccess($node);
             foreach ($node as $subNode) {
@@ -61,12 +61,12 @@ class PHPCtags
             $kind = 'd';
             $cons = $node->consts[0];
             $name = $cons->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
         } elseif ($node instanceof PHPParser_Node_Stmt_Global) {
             $kind = 'v';
             $prop = $node->vars[0];
             $name = $prop->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
         } elseif ($node instanceof PHPParser_Node_Stmt_Static) {
             //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Declare) {
@@ -74,7 +74,7 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Function) {
             $kind = 'f';
             $name = $node->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, $class_name, $name);
             }
@@ -83,7 +83,7 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Interface) {
             $kind = 'i';
             $name = $node->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, $name);
             }
@@ -93,7 +93,7 @@ class PHPCtags
             $kind = 'v';
             $node = $node->var;
             $name = $node->name;
-            $line = $node->getLine() - 1;
+            $line = $node->getLine();
             if (!empty($class_name) && !empty($function_name)) {
                 $scope = "function:" . $class_name . '::' . $function_name;
             } elseif (!empty($function_name)) {
@@ -105,7 +105,7 @@ class PHPCtags
                     $kind = 'd';
                     $node = $node->args[0]->value;
                     $name = $node->value;
-                    $line = $node->getLine() - 1;
+                    $line = $node->getLine();
                     break;
             }
         } else {
@@ -139,7 +139,7 @@ class PHPCtags
                 $str .= $stuct['name'];
             }
             $str .= "\t" . $this->mFile;
-            $str .= "\t" . "/^" . rtrim($lines[$stuct['line']], "\n") . "$/;\"";
+            $str .= "\t" . "/^" . rtrim($lines[$stuct['line'] - 1], "\n") . "$/;\"";
             $str .= "\t" . $stuct['kind'];
             $str .= "\t" . "line:" . $stuct['line'];
             !empty($stuct['scope']) && $str .= "\t" . $stuct['scope'];
