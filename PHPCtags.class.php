@@ -168,17 +168,14 @@ class PHPCtags
 
             $str .= ";\"";
 
-            #field=z
-            if (in_array('z', $this->mOptions['fields'])) {
-                $str .= "kind:";
-            }
-
             #field=k, kind of tag as single letter
             if (in_array('k', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . $struct['kind'];
             } else
             #field=K, kind of tag as fullname
             if (in_array('K', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . $this->mFields[$struct['kind']];
             }
 
