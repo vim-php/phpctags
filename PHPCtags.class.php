@@ -129,21 +129,21 @@ class PHPCtags
     {
         $str = '';
         $lines = file($this->mFile);
-        foreach ($structs as $stuct) {
-            if (empty($stuct['name']) || empty($stuct['line']) || empty($stuct['kind']))
+        foreach ($structs as $struct) {
+            if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            if ($stuct['kind'] == 'v') {
-                $str .= "$" . $stuct['name'];
+            if ($struct['kind'] == 'v') {
+                $str .= "$" . $struct['name'];
             } else {
-                $str .= $stuct['name'];
+                $str .= $struct['name'];
             }
             $str .= "\t" . $this->mFile;
-            $str .= "\t" . "/^" . rtrim($lines[$stuct['line'] - 1], "\n") . "$/;\"";
-            $str .= "\t" . $stuct['kind'];
-            $str .= "\t" . "line:" . $stuct['line'];
-            !empty($stuct['scope']) && $str .= "\t" . $stuct['scope'];
-            !empty($stuct['access']) && $str .= "\t" . "access:" . $stuct['access'];
+            $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/;\"";
+            $str .= "\t" . $struct['kind'];
+            $str .= "\t" . "line:" . $struct['line'];
+            !empty($struct['scope']) && $str .= "\t" . $struct['scope'];
+            !empty($struct['access']) && $str .= "\t" . "access:" . $struct['access'];
             $str .= "\n";
         }
         return $str;
