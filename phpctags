@@ -1,5 +1,7 @@
 #!/usr/bin/php -q
 <?php
+error_reporting(0);
+
 include __DIR__ . '/PHP-Parser/lib/bootstrap.php';
 include __DIR__ . '/PHPCtags.class.php';
 
