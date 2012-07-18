@@ -7,6 +7,8 @@ class PHPCtags
 
     private $mParser;
 
+    private $mStructs;
+
     public function __construct($file)
     {
         //@todo Check for existence
@@ -21,6 +23,7 @@ class PHPCtags
             'i' => 'interface',
         );
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+        $this->mStructs = $this->mParser->parse(file_get_contents($this->mFile));
     }
 
     private function getAccess($node)
@@ -162,9 +165,6 @@ class PHPCtags
 
     public function export()
     {
-        $code = file_get_contents($this->mFile);
-        $stmts = $this->mParser->parse($code);
-        $structs = $this->struct($stmts);
-        echo $this->render($structs);
+        echo $this->render($this->struct($this->mStructs));
     }
 }
