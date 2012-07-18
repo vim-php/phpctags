@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 include __DIR__ . '/PHP-Parser/lib/bootstrap.php';
-include __DIR__ . "/PHPCtags.class.php";
+include __DIR__ . '/PHPCtags.class.php';
 
 $options = getopt('f:',array('version'));
 
