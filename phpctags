@@ -5,7 +5,12 @@ error_reporting(0);
 include __DIR__ . '/PHP-Parser/lib/bootstrap.php';
 include __DIR__ . '/PHPCtags.class.php';
 
-$options = getopt('f:',array('version'));
+$options = getopt('f:',array(
+    'excmd::',
+    'fields::',
+    'format::',
+    'version',
+));
 
 if(isset($options['version'])) {
     echo <<<'EOF'
@@ -17,5 +22,11 @@ EOF;
 
 $file = realpath(array_pop($argv));
 
-$ctags = new PHPCtags($file);
+if(isset($options['fields'])) {
+    $options['fields'] = str_split($options['fields']);
+} else {
+    $options['fields'] = array('k','s');
+}
+
+$ctags = new PHPCtags($file, $options);
 $ctags->export();

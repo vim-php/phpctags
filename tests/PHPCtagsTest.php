@@ -15,7 +15,13 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new PHPCtags(__DIR__ . '/PHPCtagsTest.example.php');
+        $options = array(
+            'excmd' => 'pattern',
+            'fields' => array('n','k','s','S','a'),
+            'format' => 2,
+        );
+
+        $this->object = new PHPCtags(__DIR__ . '/PHPCtagsTest.example.php', $options);
     }
 
     /**

@@ -7,7 +7,9 @@ class PHPCtags
 
     private $mParser;
 
-    public function __construct($file)
+    private $mOptions;
+
+    public function __construct($file, $options=array())
     {
         //@todo Check for existence
         $this->mFile = $file;
@@ -21,6 +23,7 @@ class PHPCtags
             'i' => 'interface',
         );
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+        $this->mOptions = $options;
     }
 
     private function getAccess($node)
@@ -149,12 +152,51 @@ class PHPCtags
             } else {
                 $str .= $struct['name'];
             }
+
             $str .= "\t" . $this->mFile;
-            $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/;\"";
-            $str .= "\t" . $struct['kind'];
-            $str .= "\t" . "line:" . $struct['line'];
-            !empty($struct['scope']) && $str .= "\t" . $struct['scope'];
-            !empty($struct['access']) && $str .= "\t" . "access:" . $struct['access'];
+
+            if ($this->mOptions['excmd'] == 'number') {
+                $str .= "\t" . $struct['line'];
+            } else { //excmd == 'mixed' or 'pattern', default behavior
+                $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
+            }
+
+            if ($this->mOptions['format'] == 1) {
+                $str .= "\n";
+                continue;
+            }
+
+            $str .= ";\"";
+
+            #field=z
+            if (in_array('z', $this->mOptions['fields'])) {
+                $str .= "kind:";
+            }
+
+            #field=k, kind of tag as single letter
+            if (in_array('k', $this->mOptions['fields'])) {
+                $str .= "\t" . $struct['kind'];
+            } else
+            #field=K, kind of tag as fullname
+            if (in_array('K', $this->mOptions['fields'])) {
+                $str .= "\t" . $this->mFields[$struct['kind']];
+            }
+
+            #field=n
+            if (in_array('n', $this->mOptions['fields'])) {
+                $str .= "\t" . "line:" . $struct['line'];
+            }
+
+            #field=s
+            if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
+                $str .= "\t" . $struct['scope'];
+            }
+
+            #field=a
+            if (in_array('a', $this->mOptions['fields']) && !empty($struct['access'])) {
+                $str .= "\t" . "access:" . $struct['access'];
+            }
+
             $str .= "\n";
         }
         return $str;
