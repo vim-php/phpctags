@@ -3,12 +3,23 @@ class PHPCtags
 {
     private $mFile;
 
+    private $mFields;
+
     private $mParser;
 
     public function __construct($file)
     {
         //@todo Check for existence
         $this->mFile = $file;
+        $this->mFields = array(
+            'c' => 'class',
+            'm' => 'method',
+            'f' => 'function',
+            'p' => 'property',
+            'd' => 'constant',
+            'v' => 'variable',
+            'i' => 'interface',
+        );
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
     }
 
@@ -36,7 +47,7 @@ class PHPCtags
                 $this->struct($subNode, $name);
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Property) {
-            $kind = 'v';
+            $kind = 'p';
             $prop = $node->props[0];
             $name = $prop->name;
             $line = $prop->getLine();
@@ -49,7 +60,7 @@ class PHPCtags
             $line = $cons->getLine();
             $scope = "class:" . $class_name;
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassMethod) {
-            $kind = 'f';
+            $kind = 'm';
             $name = $node->name;
             $line = $node->getLine();
             $scope = "class:" . $class_name;
@@ -95,7 +106,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             if (!empty($class_name) && !empty($function_name)) {
-                $scope = "function:" . $class_name . '::' . $function_name;
+                $scope = "method:" . $class_name . '::' . $function_name;
             } elseif (!empty($function_name)) {
                 $scope = "function:" . $function_name;
             }
