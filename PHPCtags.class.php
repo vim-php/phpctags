@@ -36,43 +36,44 @@ class PHPCtags
         return 'public';
     }
 
-    private function struct($node, $class_name = NULL, $function_name = NULL)
+    private function struct($node, $parent=array())
     {
+        static $scope = array();
         static $structs = array();
 
-        $kind = $name = $line = $scope = $access = '';
+        $kind = $name = $line = $access = '';
+
+        if(!empty($parent)) array_push($scope, $parent);
+
         if (is_array($node)) {
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $function_name);
+                $this->struct($subNode);
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Class) {
             $kind = 'c';
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $name);
+                $this->struct($subNode, array('class' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Property) {
             $kind = 'p';
             $prop = $node->props[0];
             $name = $prop->name;
             $line = $prop->getLine();
-            $scope = "class:" . $class_name;
             $access = $this->getAccess($node);
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassConst) {
             $kind = 'd';
             $cons = $node->consts[0];
             $name = $cons->name;
             $line = $cons->getLine();
-            $scope = "class:" . $class_name;
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassMethod) {
             $kind = 'm';
             $name = $node->name;
             $line = $node->getLine();
-            $scope = "class:" . $class_name;
             $access = $this->getAccess($node);
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $name);
+                $this->struct($subNode, array('method' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
@@ -93,7 +94,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $name);
+                $this->struct($subNode, array('function' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
             //@todo
@@ -102,7 +103,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $name);
+                $this->struct($subNode, array('interface' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
@@ -111,11 +112,6 @@ class PHPCtags
             $node = $node->var;
             $name = $node->name;
             $line = $node->getLine();
-            if (!empty($class_name) && !empty($function_name)) {
-                $scope = "method:" . $class_name . '::' . $function_name;
-            } elseif (!empty($function_name)) {
-                $scope = "function:" . $function_name;
-            }
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
                 case 'define':
@@ -138,6 +134,8 @@ class PHPCtags
                 'access' => $access,
             );
         }
+
+        if(!empty($parent)) array_pop($scope);
 
         return $structs;
     }
@@ -189,7 +187,19 @@ class PHPCtags
 
             #field=s
             if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
-                $str .= "\t" . $struct['scope'];
+                $scope = array_pop($struct['scope']);
+                list($type,$name) = each($scope);
+                switch ($type) {
+                    case 'method':
+                        $scope = array_pop($struct['scope']);
+                        list($p_type,$p_name) = each($scope);
+                        $scope = 'method:' . $p_name . '::' . $name;
+                        break;
+                    default:
+                        $scope = $type . ':' . $name;
+                        break;
+                }
+                $str .= "\t" . $scope;
             }
 
             #field=a
