@@ -1,0 +1,7 @@
+{
+    "name": "techlivezheng/phpctags",
+    "description": "An enhanced php ctags index generator.",
+    "keywords": ["ctags"],
+    "type": "library",
+    "bin": ["phpctags"]
+}
