@@ -1,3 +1,3 @@
 <?php
-include __DIR__ . '/../PHP-Parser/lib/bootstrap.php';
-include __DIR__ . "/../PHPCtags.class.php";
+
+require (__DIR__ . '/../vendor/autoload.php');
