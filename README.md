@@ -19,3 +19,8 @@ Requirements
 ------------
 
 PHP CLI 5.3+
+
+Acknowledgements
+----------------
+
+* [Snapi](https://github.com/sanpii)
