@@ -15,7 +15,22 @@ functionality has been included into an addon plugin for tagbar as
 
 Enjoy!
 
+Installation
+------------
+
+We use [composer](http://getcomposer.org/) for dependency management, run the
+following commands under the project directory to get composer and install the
+dependency.
+
+    curl -s http://getcomposer.org/installer | php
+    php composer.phar install
+
 Requirements
 ------------
 
 PHP CLI 5.3+
+
+Acknowledgements
+----------------
+
+* [Snapi](https://github.com/sanpii)
