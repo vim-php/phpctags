@@ -7,9 +7,7 @@ class PHPCtags
 
     private $mParser;
 
-    private $mOptions;
-
-    public function __construct($file, $options=array())
+    public function __construct($file)
     {
         //@todo Check for existence
         $this->mFile = $file;
@@ -23,7 +21,6 @@ class PHPCtags
             'i' => 'interface',
         );
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
-        $this->mOptions = $options;
     }
 
     private function getNodeAccess($node)
@@ -143,7 +140,7 @@ class PHPCtags
         return $structs;
     }
 
-    private function render($structs)
+    private function render($structs, $options)
     {
         $str = '';
         $lines = file($this->mFile);
@@ -159,13 +156,13 @@ class PHPCtags
 
             $str .= "\t" . $this->mFile;
 
-            if ($this->mOptions['excmd'] == 'number') {
+            if ($options['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
                 $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
             }
 
-            if ($this->mOptions['format'] == 1) {
+            if ($options['format'] == 1) {
                 $str .= "\n";
                 continue;
             }
@@ -173,23 +170,23 @@ class PHPCtags
             $str .= ";\"";
 
             #field=k, kind of tag as single letter
-            if (in_array('k', $this->mOptions['fields'])) {
-                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
+            if (in_array('k', $options['fields'])) {
+                in_array('z', $options['fields']) && $str .= "kind:";
                 $str .= "\t" . $struct['kind'];
             } else
             #field=K, kind of tag as fullname
-            if (in_array('K', $this->mOptions['fields'])) {
-                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
+            if (in_array('K', $options['fields'])) {
+                in_array('z', $options['fields']) && $str .= "kind:";
                 $str .= "\t" . $this->mKinds[$struct['kind']];
             }
 
             #field=n
-            if (in_array('n', $this->mOptions['fields'])) {
+            if (in_array('n', $options['fields'])) {
                 $str .= "\t" . "line:" . $struct['line'];
             }
 
             #field=s
-            if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
+            if (in_array('s', $options['fields']) && !empty($struct['scope'])) {
                 $scope = array_pop($struct['scope']);
                 list($type,$name) = each($scope);
                 switch ($type) {
@@ -206,7 +203,7 @@ class PHPCtags
             }
 
             #field=a
-            if (in_array('a', $this->mOptions['fields']) && !empty($struct['access'])) {
+            if (in_array('a', $options['fields']) && !empty($struct['access'])) {
                 $str .= "\t" . "access:" . $struct['access'];
             }
 
@@ -215,9 +212,9 @@ class PHPCtags
         return $str;
     }
 
-    public function export()
+    public function export($options)
     {
         $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)));
-        echo $this->render($structs);
+        echo $this->render($structs,$options);
     }
 }
