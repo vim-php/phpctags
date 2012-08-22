@@ -26,7 +26,7 @@ class PHPCtags
         $this->mOptions = $options;
     }
 
-    private function getAccess($node)
+    private function getNodeAccess($node)
     {
         if ($node->isPrivate()) return 'private';
         if ($node->isProtected()) return 'protected';
@@ -62,7 +62,7 @@ class PHPCtags
             $prop = $node->props[0];
             $name = $prop->name;
             $line = $prop->getLine();
-            $access = $this->getAccess($node);
+            $access = $this->getNodeAccess($node);
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassConst) {
             $kind = 'd';
             $cons = $node->consts[0];
@@ -72,7 +72,7 @@ class PHPCtags
             $kind = 'm';
             $name = $node->name;
             $line = $node->getLine();
-            $access = $this->getAccess($node);
+            $access = $this->getNodeAccess($node);
             foreach ($node as $subNode) {
                 $this->struct($subNode, array('method' => $name));
             }
