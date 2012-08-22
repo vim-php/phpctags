@@ -3,7 +3,7 @@ class PHPCtags
 {
     private $mFile;
 
-    private $mFields;
+    private $mKinds;
 
     private $mParser;
 
@@ -13,7 +13,7 @@ class PHPCtags
     {
         //@todo Check for existence
         $this->mFile = $file;
-        $this->mFields = array(
+        $this->mKinds= array(
             'c' => 'class',
             'm' => 'method',
             'f' => 'function',
@@ -180,7 +180,7 @@ class PHPCtags
             #field=K, kind of tag as fullname
             if (in_array('K', $this->mOptions['fields'])) {
                 in_array('z', $this->mOptions['fields']) && $str .= "kind:";
-                $str .= "\t" . $this->mFields[$struct['kind']];
+                $str .= "\t" . $this->mKinds[$struct['kind']];
             }
 
             #field=n
