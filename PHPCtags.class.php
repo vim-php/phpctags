@@ -7,10 +7,8 @@ class PHPCtags
 
     private $mParser;
 
-    public function __construct($file)
+    public function __construct()
     {
-        //@todo Check for existence
-        $this->mFile = $file;
         $this->mKinds= array(
             'c' => 'class',
             'm' => 'method',
@@ -212,8 +210,10 @@ class PHPCtags
         return $str;
     }
 
-    public function export($options)
+    public function export($file, $options)
     {
+        //@todo Check for existence
+        $this->mFile = $file;
         $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)));
         echo $this->render($structs,$options);
     }

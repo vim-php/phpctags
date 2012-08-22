@@ -15,7 +15,7 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new PHPCtags(__DIR__ . '/PHPCtagsTest.example.php');
+        $this->object = new PHPCtags();
     }
 
     /**
@@ -37,7 +37,7 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
             'format' => 2,
         );
 
-        $this->object->export($options);
+        $this->object->export(__DIR__ . '/PHPCtagsTest.example.php', $options);
     }
 
 }

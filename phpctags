@@ -37,5 +37,5 @@ if(isset($options['fields'])) {
     $options['fields'] = array('k','s');
 }
 
-$ctags = new PHPCtags($file);
-$ctags->export($options);
+$ctags = new PHPCtags();
+$ctags->export($file, $options);
