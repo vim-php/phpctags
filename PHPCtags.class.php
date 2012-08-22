@@ -7,8 +7,6 @@ class PHPCtags
 
     private $mParser;
 
-    private $mStructs;
-
     private $mOptions;
 
     public function __construct($file, $options=array())
@@ -25,7 +23,6 @@ class PHPCtags
             'i' => 'interface',
         );
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
-        $this->mStructs = $this->mParser->parse(file_get_contents($this->mFile));
         $this->mOptions = $options;
     }
 
@@ -220,6 +217,7 @@ class PHPCtags
 
     public function export()
     {
-        echo $this->render($this->struct($this->mStructs));
+        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)));
+        echo $this->render($structs);
     }
 }
