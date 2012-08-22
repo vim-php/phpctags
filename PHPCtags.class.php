@@ -36,6 +36,10 @@ class PHPCtags
         return 'public';
     }
 
+    private static function helperSortByLine($a, $b) {
+        return $a['line'] > $b['line'] ? 1 : 0;
+    }
+
     private function struct($node, $parent=array())
     {
         static $scope = array();
@@ -136,6 +140,8 @@ class PHPCtags
         }
 
         if(!empty($parent)) array_pop($scope);
+
+        usort($structs, 'self::helperSortByLine');
 
         return $structs;
     }
