@@ -34,10 +34,14 @@ EOF;
 
 $file = realpath(array_pop($argv));
 
-if(isset($options['fields'])) {
-    $options['fields'] = str_split($options['fields']);
+if(!isset($options['excmd']))
+    $options['excmd'] = 'pattern';
+if(!isset($options['format']))
+    $options['format'] = 2;
+if(!isset($options['fields'])) {
+    $options['fields'] = array('n', 'k','s', 'a');
 } else {
-    $options['fields'] = array('k','s');
+    $options['fields'] = str_split($options['fields']);
 }
 
 $ctags = new PHPCtags($file, $options);
