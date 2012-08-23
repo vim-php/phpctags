@@ -1,7 +1,5 @@
 #!/usr/bin/php -q
 <?php
-error_reporting(0);
-
 if (is_dir($vendor = __DIR__ . '/vendor')) {
     require($vendor . '/autoload.php');
 } elseif (is_dir($vendor = __DIR__ . '/../../../vendor')) {
@@ -15,11 +13,16 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
 }
 
 $options = getopt('f:',array(
+    'debug',
     'excmd::',
     'fields::',
     'format::',
     'version',
 ));
+
+if(!isset($options['debug'])) {
+    error_reporting(0);
+}
 
 if(isset($options['version'])) {
     echo <<<'EOF'
