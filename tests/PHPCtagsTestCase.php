@@ -10,6 +10,16 @@ abstract class PHPCtagsTestCase {
 
     protected $mExampleDefine;
 
+    public function __construct()
+    {
+        $this->mFormat = "<name>\t<file>\t/^<line content>$/;\"\t<kind>\tline:<line number>\t<scope>\t<access>";
+        $this->mOptions = array(
+            'excmd' => 'pattern',
+            'fields' => array('n','k','s','a'),
+            'format' => 2,
+        );
+    }
+
     public function getFormat()
     {
         return $this->mFormat;

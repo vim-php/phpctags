@@ -3,12 +3,7 @@ class t_0001 extends PHPCtagsTestCase {
 
     public function __construct()
     {
-        $this->mFormat = "<name>\t<file>\t/^<line content>$/;\"\t<kind>\tline:<line number>\t<scope>\t<access>";
-        $this->mOptions = array(
-            'excmd' => 'pattern',
-            'fields' => array('n','k','s','a'),
-            'format' => 2,
-        );
+        parent::__construct();
         $this->mExample = '0001';
         $this->mExampleDefine = array(
             array(
