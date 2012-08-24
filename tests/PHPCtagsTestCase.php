@@ -8,8 +8,6 @@ abstract class PHPCtagsTestCase {
 
     protected $mExample;
 
-    protected $mExampleDefine;
-
     public function __construct()
     {
         $this->mFormat = "<name>\t<file>\t/^<line content>$/;\"\t<kind>\tline:<line number>\t<scope>\t<access>";
@@ -37,7 +35,13 @@ abstract class PHPCtagsTestCase {
 
     public function getExampleDefine()
     {
-        return $this->mExampleDefine;
+        require_once __DIR__ . '/examples/' . $this->mExample . '.example.define.php';
+        if (function_exists('e_' . $this->mExample . '_define')) {
+            $define = call_user_func('e_' . $this->mExample . '_define');
+        } else {
+            die('example definition not exist');
+        }
+        return $define;
     }
 
     public function getExampleContent()
