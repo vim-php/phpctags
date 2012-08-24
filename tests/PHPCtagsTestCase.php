@@ -18,11 +18,6 @@ abstract class PHPCtagsTestCase {
         );
     }
 
-    public function getFormat()
-    {
-        return $this->mFormat;
-    }
-
     public function getOptions()
     {
         return $this->mOptions;
@@ -47,5 +42,38 @@ abstract class PHPCtagsTestCase {
     public function getExampleContent()
     {
         return file($this->getExample());
+    }
+
+    public function getExpectResult()
+    {
+        $testcase_expect = '';
+        $testcase_example_define = $this->getExampleDefine();
+        $testcase_example_content = $this->getExampleContent();
+        foreach ($testcase_example_define as $define) {
+            $line = $this->mFormat;
+
+            $line = preg_replace('/<name>/', $define['name'], $line);
+            $line = preg_replace('/<file>/', $this->getExample(), $line);
+            $line = preg_replace('/<line content>/', rtrim($testcase_example_content[$define['line'] - 1], "\n"), $line);
+            $line = preg_replace('/<kind>/', $define['kind'], $line);
+            $line = preg_replace('/<line number>/', $define['line'], $line);
+            if(!empty($define['scope'])) {
+                $line = preg_replace('/<scope>/', $define['scope'], $line);
+            } else {
+                $line = preg_replace('/<scope>/', '', $line);
+            }
+            if(!empty($define['access'])) {
+                $line = preg_replace('/<access>/', 'access:' . $define['access'], $line);
+            } else {
+                $line = preg_replace('/<access>/', '', $line);
+            }
+            $line = rtrim($line, "\t");
+            $line .= "\n";
+
+            $testcase_expect .= $line;
+        }
+
+        return $testcase_expect;
+
     }
 }

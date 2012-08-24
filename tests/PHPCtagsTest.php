@@ -45,36 +45,10 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
             $testcase_class = 't_' . $testcase_id;
             $testcase_object = new $testcase_class;
 
-            $testcase_expect = '';
-            $testcase_format = $testcase_object->getFormat();
-            $testcase_example = $testcase_object->getExample();
-            $testcase_example_define = $testcase_object->getExampleDefine();
-            $testcase_example_content = $testcase_object->getExampleContent();
-            foreach ($testcase_example_define as $define) {
-                $line = $testcase_format;
-
-                $line = preg_replace('/<name>/', $define['name'], $line);
-                $line = preg_replace('/<file>/', $testcase_example, $line);
-                $line = preg_replace('/<line content>/', rtrim($testcase_example_content[$define['line'] - 1], "\n"), $line);
-                $line = preg_replace('/<kind>/', $define['kind'], $line);
-                $line = preg_replace('/<line number>/', $define['line'], $line);
-                if(!empty($define['scope'])) {
-                    $line = preg_replace('/<scope>/', $define['scope'], $line);
-                } else {
-                    $line = preg_replace('/<scope>/', '', $line);
-                }
-                if(!empty($define['access'])) {
-                    $line = preg_replace('/<access>/', 'access:' . $define['access'], $line);
-                } else {
-                    $line = preg_replace('/<access>/', '', $line);
-                }
-                $line = rtrim($line, "\t");
-                $line .= "\n";
-
-                $testcase_expect .= $line;
-            }
+            $testcase_expect = $testcase_object->getExpectResult();
 
             ob_start();
+            $testcase_example = $testcase_object->getExample();
             $testcase_options = $testcase_object->getOptions();
             $this->object->export($testcase_example, $testcase_options);
             $testcase_result = ob_get_contents();
