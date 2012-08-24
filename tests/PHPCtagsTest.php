@@ -48,7 +48,6 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
             $testcase_expect = '';
             $testcase_format = $testcase_object->getFormat();
             $testcase_example = $testcase_object->getExample();
-            $testcase_example = realpath(__DIR__ . '/examples/' . $testcase_example . '.example.php');
             $testcase_example_define = $testcase_object->getExampleDefine();
             $testcase_example_content = $testcase_object->getExampleContent();
             foreach ($testcase_example_define as $define) {

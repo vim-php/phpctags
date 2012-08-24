@@ -32,7 +32,7 @@ abstract class PHPCtagsTestCase {
 
     public function getExample()
     {
-        return $this->mExample;
+        return realpath(__DIR__ . '/examples/' . $this->mExample . '.example.php');
     }
 
     public function getExampleDefine()
