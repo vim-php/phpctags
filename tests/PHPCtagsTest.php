@@ -29,33 +29,43 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers PHPCtags::export
-     */
-    public function testExport()
+     * Data provider
+     **/
+    public function provider()
     {
+        $testcases_files = array();
         $testcases = scandir(__DIR__ . '/testcases');
         foreach($testcases as $testcase)
         {
             if($testcase === '.' || $testcase === '..') {
                 continue;
             }
-
-            require_once __DIR__ . '/testcases/' . $testcase;
-            $testcase_id = strstr($testcase, '.', true);
-            $testcase_class = 't_' . $testcase_id;
-            $testcase_object = new $testcase_class;
-
-            $testcase_expect = $testcase_object->getExpectResult();
-
-            ob_start();
-            $testcase_example = $testcase_object->getExample();
-            $testcase_options = $testcase_object->getOptions();
-            $this->object->export($testcase_example, $testcase_options);
-            $testcase_result = ob_get_contents();
-            ob_end_clean();
-
-            $this->assertEquals(md5($testcase_result), md5($testcase_expect))
+            $testcases_files[] = array($testcase);
         }
+        return $testcases_files;
+    }
+
+    /**
+     * @covers PHPCtags::export
+     * @dataProvider provider
+     */
+    public function testExport($testcase)
+    {
+        require_once __DIR__ . '/testcases/' . $testcase;
+        $testcase_id = strstr($testcase, '.', true);
+        $testcase_class = 't_' . $testcase_id;
+        $testcase_object = new $testcase_class;
+
+        $testcase_expect = $testcase_object->getExpectResult();
+
+        ob_start();
+        $testcase_example = $testcase_object->getExample();
+        $testcase_options = $testcase_object->getOptions();
+        $this->object->export($testcase_example, $testcase_options);
+        $testcase_result = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertEquals(md5($testcase_result), md5($testcase_expect))
     }
 
 }
