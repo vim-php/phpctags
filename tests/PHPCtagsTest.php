@@ -65,7 +65,22 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
         $testcase_result = ob_get_contents();
         ob_end_clean();
 
-        $this->assertEquals(md5($testcase_result), md5($testcase_expect))
+        $expected_result = __DIR__ . '/' . $testcase_id . '.testcase.expect';
+        $acctural_result = __DIR__ . '/' . $testcase_id . '.testcase.result';
+
+        $msg = <<<EOF
+Test case '$testcase' has failed.
+Expected result has been dumped to '$expected_result'
+Acctural result has been dumped to '$acctural_result'
+EOF;
+
+        try {
+            $this->assertEquals(md5($testcase_expect), md5($testcase_result), $msg);
+        } catch (PHPUnit_Framework_ExpectationFailedException $e) {
+            file_put_contents($expected_result, $testcase_expect);
+            file_put_contents($acctural_result, $testcase_result);
+            throw $e;
+        }
     }
 
 }
