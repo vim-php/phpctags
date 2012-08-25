@@ -44,5 +44,5 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
-$ctags = new PHPCtags($file, $options);
-$ctags->export();
+$ctags = new PHPCtags();
+$ctags->export($file, $options);
