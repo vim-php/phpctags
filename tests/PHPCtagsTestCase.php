@@ -10,7 +10,7 @@ abstract class PHPCtagsTestCase {
 
     public function __construct()
     {
-        $this->mFormat = "<name>\t<file>\t/^<line content>$/;\"\t<kind>\tline:<line number>\t<scope>\t<access>";
+        $this->mFormat = "<name>\t<file>\t/^<line content>$/;\"\t<short kind>\tline:<line number>\t<scope>\t<access>";
         $this->mOptions = array(
             'excmd' => 'pattern',
             'fields' => array('n','k','s','a'),
@@ -46,6 +46,7 @@ abstract class PHPCtagsTestCase {
 
     public function getExpectResult()
     {
+        $kinds = PHPCtags::getMKinds();
         $testcase_expect = '';
         $testcase_example_define = $this->getExampleDefine();
         $testcase_example_content = $this->getExampleContent();
@@ -55,7 +56,8 @@ abstract class PHPCtagsTestCase {
             $line = preg_replace('/<name>/', $define['name'], $line);
             $line = preg_replace('/<file>/', $this->getExample(), $line);
             $line = preg_replace('/<line content>/', rtrim($testcase_example_content[$define['line'] - 1], "\n"), $line);
-            $line = preg_replace('/<kind>/', $define['kind'], $line);
+            $line = preg_replace('/<short kind>/', $define['kind'], $line);
+            $line = preg_replace('/<full kind>/', $kinds[$define['kind']], $line);
             $line = preg_replace('/<line number>/', $define['line'], $line);
             if(!empty($define['scope'])) {
                 $line = preg_replace('/<scope>/', $define['scope'], $line);

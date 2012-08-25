@@ -3,13 +3,9 @@ class PHPCtags
 {
     private $mFile;
 
-    private $mKinds;
-
     private $mParser;
 
-    public function __construct()
-    {
-        $this->mKinds= array(
+    private static $mKinds = array(
             'c' => 'class',
             'm' => 'method',
             'f' => 'function',
@@ -18,7 +14,15 @@ class PHPCtags
             'v' => 'variable',
             'i' => 'interface',
         );
+
+    public function __construct()
+    {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+    }
+
+    public static function getMKinds()
+    {
+        return self::$mKinds;
     }
 
     private function getNodeAccess($node)
@@ -179,7 +183,7 @@ class PHPCtags
             #field=K, kind of tag as fullname
             if (in_array('K', $options['fields'])) {
                 in_array('z', $options['fields']) && $str .= "kind:";
-                $str .= "\t" . $this->mKinds[$struct['kind']];
+                $str .= "\t" . self::$mKinds[$struct['kind']];
             }
 
             #field=n
