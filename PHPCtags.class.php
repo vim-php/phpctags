@@ -32,10 +32,14 @@ class PHPCtags
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
-    private function struct($node, $parent=array())
+    private function struct($node, $reset=FALSE, $parent=array())
     {
         static $scope = array();
         static $structs = array();
+
+        if ($reset) {
+            $structs = array();
+        }
 
         $kind = $name = $line = $access = '';
 
@@ -50,7 +54,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, array('class' => $name));
+                $this->struct($subNode, FALSE, array('class' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Property) {
             $kind = 'p';
@@ -69,7 +73,7 @@ class PHPCtags
             $line = $node->getLine();
             $access = $this->getNodeAccess($node);
             foreach ($node as $subNode) {
-                $this->struct($subNode, array('method' => $name));
+                $this->struct($subNode, FALSE, array('method' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
@@ -90,7 +94,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, array('function' => $name));
+                $this->struct($subNode, FALSE, array('function' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
             //@todo
@@ -99,7 +103,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, array('interface' => $name));
+                $this->struct($subNode, FALSE, array('interface' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
@@ -214,7 +218,7 @@ class PHPCtags
     {
         //@todo Check for existence
         $this->mFile = $file;
-        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)));
-        echo $this->render($structs,$options);
+        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+        echo $this->render($structs, $options);
     }
 }
