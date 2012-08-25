@@ -111,6 +111,9 @@ class PHPCtags
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
             if(is_string($node->var->name)) {
                 $kind = 'v';
