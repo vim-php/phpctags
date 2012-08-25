@@ -112,10 +112,12 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
-            $kind = 'v';
-            $node = $node->var;
-            $name = $node->name;
-            $line = $node->getLine();
+            if(is_string($node->var->name)) {
+                $kind = 'v';
+                $node = $node->var;
+                $name = $node->name;
+                $line = $node->getLine();
+            }
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
                 case 'define':
