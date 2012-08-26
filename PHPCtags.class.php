@@ -5,57 +5,79 @@ class PHPCtags
 
     private $mParser;
 
-    public function __construct($file)
+    private static $mKinds = array(
+            'c' => 'class',
+            'm' => 'method',
+            'f' => 'function',
+            'p' => 'property',
+            'd' => 'constant',
+            'v' => 'variable',
+            'i' => 'interface',
+        );
+
+    public function __construct()
     {
-        //@todo Check for existence
-        $this->mFile = $file;
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
     }
 
-    private function getAccess($node)
+    public static function getMKinds()
+    {
+        return self::$mKinds;
+    }
+
+    private function getNodeAccess($node)
     {
         if ($node->isPrivate()) return 'private';
         if ($node->isProtected()) return 'protected';
         return 'public';
     }
 
-    private function struct($node, $class_name = NULL, $function_name = NULL)
+    private static function helperSortByLine($a, $b) {
+        return $a['line'] > $b['line'] ? 1 : 0;
+    }
+
+    private function struct($node, $reset=FALSE, $parent=array())
     {
+        static $scope = array();
         static $structs = array();
 
-        $kind = $name = $line = $scope = $access = '';
+        if ($reset) {
+            $structs = array();
+        }
+
+        $kind = $name = $line = $access = '';
+
+        if(!empty($parent)) array_push($scope, $parent);
+
         if (is_array($node)) {
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $function_name);
+                $this->struct($subNode);
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Class) {
             $kind = 'c';
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $name);
+                $this->struct($subNode, FALSE, array('class' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Property) {
-            $kind = 'v';
+            $kind = 'p';
             $prop = $node->props[0];
             $name = $prop->name;
             $line = $prop->getLine();
-            $scope = "class:" . $class_name;
-            $access = $this->getAccess($node);
+            $access = $this->getNodeAccess($node);
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassConst) {
             $kind = 'd';
             $cons = $node->consts[0];
             $name = $cons->name;
             $line = $cons->getLine();
-            $scope = "class:" . $class_name;
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassMethod) {
-            $kind = 'f';
+            $kind = 'm';
             $name = $node->name;
             $line = $node->getLine();
-            $scope = "class:" . $class_name;
-            $access = $this->getAccess($node);
+            $access = $this->getNodeAccess($node);
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $name);
+                $this->struct($subNode, FALSE, array('method' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
@@ -76,7 +98,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $class_name, $name);
+                $this->struct($subNode, FALSE, array('function' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
             //@todo
@@ -85,19 +107,19 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, $name);
+                $this->struct($subNode, FALSE, array('interface' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             //@todo
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
-            $kind = 'v';
-            $node = $node->var;
-            $name = $node->name;
-            $line = $node->getLine();
-            if (!empty($class_name) && !empty($function_name)) {
-                $scope = "function:" . $class_name . '::' . $function_name;
-            } elseif (!empty($function_name)) {
-                $scope = "function:" . $function_name;
+            if(is_string($node->var->name)) {
+                $kind = 'v';
+                $node = $node->var;
+                $name = $node->name;
+                $line = $node->getLine();
             }
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
@@ -122,38 +144,90 @@ class PHPCtags
             );
         }
 
+        if(!empty($parent)) array_pop($scope);
+
+        usort($structs, 'self::helperSortByLine');
+
         return $structs;
     }
 
-    private function render($structs)
+    private function render($structs, $options)
     {
         $str = '';
         $lines = file($this->mFile);
-        foreach ($structs as $stuct) {
-            if (empty($stuct['name']) || empty($stuct['line']) || empty($stuct['kind']))
+        foreach ($structs as $struct) {
+            if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            if ($stuct['kind'] == 'v') {
-                $str .= "$" . $stuct['name'];
+            if ($struct['kind'] == 'v') {
+                $str .= "$" . $struct['name'];
             } else {
-                $str .= $stuct['name'];
+                $str .= $struct['name'];
             }
+
             $str .= "\t" . $this->mFile;
-            $str .= "\t" . "/^" . rtrim($lines[$stuct['line'] - 1], "\n") . "$/;\"";
-            $str .= "\t" . $stuct['kind'];
-            $str .= "\t" . "line:" . $stuct['line'];
-            !empty($stuct['scope']) && $str .= "\t" . $stuct['scope'];
-            !empty($stuct['access']) && $str .= "\t" . "access:" . $stuct['access'];
+
+            if ($options['excmd'] == 'number') {
+                $str .= "\t" . $struct['line'];
+            } else { //excmd == 'mixed' or 'pattern', default behavior
+                $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
+            }
+
+            if ($options['format'] == 1) {
+                $str .= "\n";
+                continue;
+            }
+
+            $str .= ";\"";
+
+            #field=k, kind of tag as single letter
+            if (in_array('k', $options['fields'])) {
+                in_array('z', $options['fields']) && $str .= "kind:";
+                $str .= "\t" . $struct['kind'];
+            } else
+            #field=K, kind of tag as fullname
+            if (in_array('K', $options['fields'])) {
+                in_array('z', $options['fields']) && $str .= "kind:";
+                $str .= "\t" . self::$mKinds[$struct['kind']];
+            }
+
+            #field=n
+            if (in_array('n', $options['fields'])) {
+                $str .= "\t" . "line:" . $struct['line'];
+            }
+
+            #field=s
+            if (in_array('s', $options['fields']) && !empty($struct['scope'])) {
+                $scope = array_pop($struct['scope']);
+                list($type,$name) = each($scope);
+                switch ($type) {
+                    case 'method':
+                        $scope = array_pop($struct['scope']);
+                        list($p_type,$p_name) = each($scope);
+                        $scope = 'method:' . $p_name . '::' . $name;
+                        break;
+                    default:
+                        $scope = $type . ':' . $name;
+                        break;
+                }
+                $str .= "\t" . $scope;
+            }
+
+            #field=a
+            if (in_array('a', $options['fields']) && !empty($struct['access'])) {
+                $str .= "\t" . "access:" . $struct['access'];
+            }
+
             $str .= "\n";
         }
         return $str;
     }
 
-    public function export()
+    public function export($file, $options)
     {
-        $code = file_get_contents($this->mFile);
-        $stmts = $this->mParser->parse($code);
-        $structs = $this->struct($stmts);
-        echo $this->render($structs);
+        //@todo Check for existence
+        $this->mFile = $file;
+        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+        echo $this->render($structs, $options);
     }
 }

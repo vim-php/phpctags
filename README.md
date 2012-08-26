@@ -25,12 +25,16 @@ dependency.
     curl -s http://getcomposer.org/installer | php
     php composer.phar install
 
+See [phpctags on packagist](http://packagist.org/packages/techlivezheng/phpctags)
+for more details.
+
 Requirements
 ------------
 
-PHP CLI 5.3+
+* PHP CLI 5.3+
+* [PHP-Parser](https://github.com/nikic/PHP-Parser)
 
 Acknowledgements
 ----------------
 
-* [Snapi](https://github.com/sanpii)
+* [Snapi](https://github.com/sanpii) for composer support.

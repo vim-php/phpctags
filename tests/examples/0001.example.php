@@ -27,7 +27,7 @@ trait Trait_1
 
 }
 
-interface  Interface_1
+interface Interface_1
 {
     const CLASS_CONST = 'this is a const defined in this scope';
 
