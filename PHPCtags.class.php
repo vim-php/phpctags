@@ -223,11 +223,16 @@ class PHPCtags
         return $str;
     }
 
-    public function export($file, $options)
+    public function get($file, $options)
     {
         //@todo Check for existence
         $this->mFile = $file;
         $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
-        echo $this->render($structs, $options);
+        return $this->render($structs, $options);
+    }
+
+    public function export($file, $options)
+    {
+        echo $this->get($file, $options);
     }
 }

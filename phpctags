@@ -1,5 +1,6 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
+
 if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     require($autoload);
 } elseif (file_exists($autoload = __DIR__ . '/../../autoload.php')) {
@@ -12,7 +13,7 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
-$options = getopt('f:',array(
+$options = getopt('f:a',array(
     'debug',
     'excmd::',
     'fields::',
@@ -47,5 +48,12 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
+if (isset($options['f']) && $options['f'] !== '-') {
+    $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
+} else {
+    $tagfile = fopen('php://stdout', 'w');
+}
+
 $ctags = new PHPCtags();
-$ctags->export($file, $options);
+fwrite($tagfile, $ctags->get($file, $options));
+fclose($tagfile);
