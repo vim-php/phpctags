@@ -48,4 +48,12 @@ if(!isset($options['fields'])) {
 }
 
 $ctags = new PHPCtags();
-$ctags->export($file, $options);
+$result = $ctags->export($file, $options);
+
+if (isset($options['f']) && $options['f'] !== '-') {
+    $tagfile = fopen($options['f'], 'w');
+} else {
+    $tagfile = fopen('php://stdout', 'w');
+}
+fwrite($tagfile, $result);
+fclose($tagfile);

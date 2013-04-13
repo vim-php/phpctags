@@ -61,7 +61,7 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
         ob_start();
         $testcase_example = $testcase_object->getExample();
         $testcase_options = $testcase_object->getOptions();
-        $this->object->export($testcase_example, $testcase_options);
+        echo $this->object->export($testcase_example, $testcase_options);
         $testcase_result = ob_get_contents();
         ob_end_clean();
 
