@@ -12,7 +12,7 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
     );
 }
 
-$options = getopt('f:',array(
+$options = getopt('af:',array(
     'debug',
     'excmd::',
     'fields::',
@@ -51,7 +51,7 @@ $ctags = new PHPCtags();
 $result = $ctags->export($file, $options);
 
 if (isset($options['f']) && $options['f'] !== '-') {
-    $tagfile = fopen($options['f'], 'w');
+    $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
 } else {
     $tagfile = fopen('php://stdout', 'w');
 }
