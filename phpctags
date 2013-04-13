@@ -13,12 +13,13 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
-$options = getopt('f:a',array(
+$options = getopt('f:aR',array(
     'debug',
     'excmd::',
     'fields::',
     'format::',
     'version',
+    'exclude::',
 ));
 
 if(!isset($options['debug'])) {
@@ -55,5 +56,36 @@ if (isset($options['f']) && $options['f'] !== '-') {
 }
 
 $ctags = new PHPCtags();
-fwrite($tagfile, $ctags->get($file, $options));
+if (isset($options['R'])) {
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($file,
+        FilesystemIterator::FOLLOW_SYMLINKS |
+        FilesystemIterator::SKIP_DOTS
+    ));
+
+    $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
+    foreach ($iterator as $filename) {
+
+        if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+            continue;
+        }
+
+        if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
+            continue;
+        }
+
+        fwrite($tagfile, $ctags->get($filename, $options));
+    }
+} else {
+    fwrite($tagfile, $ctags->get($file, $options));
+}
+
 fclose($tagfile);
+if (isset($options['f']) && $options['f'] !== '-') {
+    if (strtolower(substr(PHP_OS, 0, 3)) === 'win') {
+        exec("sort /o $options[f] $options[f]");
+    } else {
+        exec("env LC_LOCALE=C sort -o $options[f] $options[f]");
+    }
+}
+
