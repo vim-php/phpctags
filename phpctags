@@ -85,7 +85,7 @@ if (isset($options['f']) && $options['f'] !== '-') {
     if (strtolower(substr(PHP_OS, 0, 3)) === 'win') {
         exec("sort /o $options[f] $options[f]");
     } else {
-        exec("env LC_LOCALE=C sort -o $options[f] $options[f]");
+        exec("env LC_COLLATE=C sort -o $options[f] $options[f]");
     }
 }
 
