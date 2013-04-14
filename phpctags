@@ -1,9 +1,10 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
-if (is_dir($vendor = __DIR__ . '/vendor')) {
-    require($vendor . '/autoload.php');
-} elseif (is_dir($vendor = __DIR__ . '/../../../vendor')) {
-    require($vendor . '/autoload.php');
+
+if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
+    require($autoload);
+} elseif (file_exists($autoload = __DIR__ . '/../../autoload.php')) {
+    require($autoload);
 } else {
     die(
         'You must set up the project dependencies, run the following commands:'.PHP_EOL.
@@ -12,12 +13,13 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
     );
 }
 
-$options = getopt('f:',array(
+$options = getopt('f:aR',array(
     'debug',
     'excmd::',
     'fields::',
     'format::',
     'version',
+    'exclude::',
 ));
 
 if(!isset($options['debug'])) {
@@ -47,5 +49,43 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
+if (isset($options['f']) && $options['f'] !== '-') {
+    $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
+} else {
+    $tagfile = fopen('php://stdout', 'w');
+}
+
 $ctags = new PHPCtags();
-$ctags->export($file, $options);
+if (isset($options['R'])) {
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($file,
+        FilesystemIterator::FOLLOW_SYMLINKS |
+        FilesystemIterator::SKIP_DOTS
+    ));
+
+    $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
+    foreach ($iterator as $filename) {
+
+        if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+            continue;
+        }
+
+        if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
+            continue;
+        }
+
+        fwrite($tagfile, $ctags->get($filename, $options));
+    }
+} else {
+    fwrite($tagfile, $ctags->get($file, $options));
+}
+
+fclose($tagfile);
+if (isset($options['f']) && $options['f'] !== '-') {
+    if (strtolower(substr(PHP_OS, 0, 3)) === 'win') {
+        exec("sort /o $options[f] $options[f]");
+    } else {
+        exec("env LC_COLLATE=C sort -o $options[f] $options[f]");
+    }
+}
+
