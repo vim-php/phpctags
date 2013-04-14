@@ -15,6 +15,7 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
 $options = getopt('af:R',array(
     'append::',
     'debug',
+    'exclude:',
     'excmd::',
     'fields::',
     'format::',
@@ -80,6 +81,10 @@ if (isset($options['R'])) {
 
     foreach ($iterator as $filename) {
         if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+            continue;
+        }
+
+        if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
             continue;
         }
 
