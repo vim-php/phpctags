@@ -228,7 +228,7 @@ class PHPCtags
         // if the memory limit option is set and is valid, adjust memory
         if (isset($options['memory'])) {
             $memory_limit = trim($options['memory']);
-            if ($this->testValidMemoryLimit($memory_limit)) {
+            if ($this->isMemoryLimitValid($memory_limit)) {
                 ini_set('memory_limit', $memory_limit);
             }
         }
@@ -238,7 +238,7 @@ class PHPCtags
         echo $this->render($structs, $options);
     }
 
-    private static function testValidMemoryLimit($memory_limit) {
+    private static function isMemoryLimitValid($memory_limit) {
         if ($memory_limit == "-1") {
             // no memory limit
             return true;
