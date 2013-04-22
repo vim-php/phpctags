@@ -42,7 +42,7 @@ if(!isset($options['excmd']))
     $options['excmd'] = 'pattern';
 if(!isset($options['format']))
     $options['format'] = 2;
-if(isset($options['memory']))
+if(!isset($options['memory']))
     $options['memory'] = '128M';
 if(!isset($options['fields'])) {
     $options['fields'] = array('n', 'k','s', 'a');
