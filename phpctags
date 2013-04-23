@@ -13,6 +13,7 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
 }
 
 $options = getopt('af:',array(
+    'append::',
     'debug',
     'excmd::',
     'fields::',
@@ -47,6 +48,14 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
+if(isset($options['append'])) {
+    if ($options['append'] === FALSE || yes_or_no($options['append']) == 'yes') {
+        $options['a'] = FALSE;
+    } else if (yes_or_no($options['append']) != 'no') {
+        die('phpctags: Invalid value for "append" option');
+    }
+}
+
 $ctags = new PHPCtags();
 $result = $ctags->export($file, $options);
 
@@ -57,3 +66,13 @@ if (isset($options['f']) && $options['f'] !== '-') {
 }
 fwrite($tagfile, $result);
 fclose($tagfile);
+
+function yes_or_no($arg) {
+    if (preg_match('/\b[Y|y]([E|e][S|s])?\b/', $arg)) {
+        return 'yes';
+    } else if (preg_match('/\b[N|n]([O|o])?\b/', $arg)) {
+        return 'no';
+    } else {
+        return false;
+    }
+}
