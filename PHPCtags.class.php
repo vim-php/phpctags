@@ -225,9 +225,32 @@ class PHPCtags
 
     public function export($file, $options)
     {
+        // if the memory limit option is set and is valid, adjust memory
+        if (isset($options['memory'])) {
+            $memory_limit = trim($options['memory']);
+            if ($this->isMemoryLimitValid($memory_limit)) {
+                ini_set('memory_limit', $memory_limit);
+            }
+        }
         //@todo Check for existence
         $this->mFile = $file;
         $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
         echo $this->render($structs, $options);
+    }
+
+    private static function isMemoryLimitValid($memory_limit) {
+        if ($memory_limit == "-1") {
+            // no memory limit
+            return true;
+        } elseif (is_numeric($memory_limit) && $memory_limit > 0) {
+            // memory limit provided in bytes
+            return true;
+        } elseif (preg_match("/\d+\s*[KMG]/", $memory_limit)) {
+            // memory limit provided in human readable sizes
+            // as specified here: http://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes
+            return true;
+        }
+
+        return false;
     }
 }
