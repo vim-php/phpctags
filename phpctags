@@ -35,7 +35,7 @@ EOF;
     exit;
 }
 
-$file = realpath(array_pop($argv));
+$file = array_pop($argv);
 
 if(!isset($options['excmd']))
     $options['excmd'] = 'pattern';
@@ -47,5 +47,9 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
-$ctags = new PHPCtags();
-$ctags->export($file, $options);
+try {
+    $ctags = new PHPCtags();
+    $ctags->export($file, $options);
+} catch (Exception $e) {
+    die("phpctags: {$e->getMessage()}");
+}
