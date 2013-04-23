@@ -79,7 +79,7 @@ if(isset($options['recurse'])) {
 
 $ctags = new PHPCtags();
 $result = '';
-if (isset($options['R'])) {
+if (is_dir($file) && isset($options['R'])) {
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator(
             $file,
