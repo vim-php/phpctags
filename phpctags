@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
-if (is_dir($vendor = __DIR__ . '/vendor')) {
-    require($vendor . '/autoload.php');
-} elseif (is_dir($vendor = __DIR__ . '/../../../vendor')) {
-    require($vendor . '/autoload.php');
+if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
+    require($autoload);
+} elseif (file_exists($autoload = __DIR__ . '/../../autoload.php')) {
+    require($autoload);
 } else {
     die(
         'You must set up the project dependencies, run the following commands:'.PHP_EOL.
@@ -21,6 +21,7 @@ $options = getopt('af:R',array(
     'format::',
     'recurse::',
     'version',
+    'memory::',
 ));
 
 if(!isset($options['debug'])) {
@@ -44,10 +45,20 @@ if(!isset($options['excmd']))
     $options['excmd'] = 'pattern';
 if(!isset($options['format']))
     $options['format'] = 2;
+if(!isset($options['memory']))
+    $options['memory'] = '128M';
 if(!isset($options['fields'])) {
     $options['fields'] = array('n', 'k','s', 'a');
 } else {
     $options['fields'] = str_split($options['fields']);
+}
+
+// if the memory limit option is set and is valid, adjust memory
+if (isset($options['memory'])) {
+    $memory_limit = trim($options['memory']);
+    if (isMemoryLimitValid($memory_limit)) {
+        ini_set('memory_limit', $memory_limit);
+    }
 }
 
 if(isset($options['append'])) {
@@ -110,4 +121,20 @@ function yes_or_no($arg) {
     } else {
         return false;
     }
+}
+
+function isMemoryLimitValid($memory_limit) {
+    if ($memory_limit == "-1") {
+        // no memory limit
+        return true;
+    } elseif (is_numeric($memory_limit) && $memory_limit > 0) {
+        // memory limit provided in bytes
+        return true;
+    } elseif (preg_match("/\d+\s*[KMG]/", $memory_limit)) {
+        // memory limit provided in human readable sizes
+        // as specified here: http://www.php.net/manual/en/faq.using.php#faq.using.shorthandbytes
+        return true;
+    }
+
+    return false;
 }

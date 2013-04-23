@@ -38,3 +38,4 @@ Acknowledgements
 ----------------
 
 * [Snapi](https://github.com/sanpii) for composer support.
+* [DeMarko](https://github.com/DeMarko) for memory limit support.
