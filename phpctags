@@ -18,6 +18,7 @@ $options = getopt('af:R',array(
     'excmd::',
     'fields::',
     'format::',
+    'recurse::',
     'version',
 ));
 
@@ -53,6 +54,14 @@ if(isset($options['append'])) {
         $options['a'] = FALSE;
     } else if (yes_or_no($options['append']) != 'no') {
         die('phpctags: Invalid value for "append" option');
+    }
+}
+
+if(isset($options['recurse'])) {
+    if ($options['recurse'] === FALSE || yes_or_no($options['recurse']) == 'yes') {
+        $options['R'] = FALSE;
+    } else if (yes_or_no($options['recurse']) != 'no') {
+        die('phpctags: Invalid value for "recurse" option');
     }
 }
 
