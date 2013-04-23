@@ -1,9 +1,9 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
-if (is_dir($vendor = __DIR__ . '/vendor')) {
-    require($vendor . '/autoload.php');
-} elseif (is_dir($vendor = __DIR__ . '/../../../vendor')) {
-    require($vendor . '/autoload.php');
+if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
+    require($autoload);
+} elseif (file_exists($autoload = __DIR__ . '/../../autoload.php')) {
+    require($autoload);
 } else {
     die(
         'You must set up the project dependencies, run the following commands:'.PHP_EOL.
@@ -12,11 +12,14 @@ if (is_dir($vendor = __DIR__ . '/vendor')) {
     );
 }
 
-$options = getopt('f:',array(
+$options = getopt('af:R',array(
+    'append::',
     'debug',
+    'exclude:',
     'excmd::',
     'fields::',
     'format::',
+    'recurse::',
     'version',
     'memory::',
 ));
@@ -50,5 +53,64 @@ if(!isset($options['fields'])) {
     $options['fields'] = str_split($options['fields']);
 }
 
+if(isset($options['append'])) {
+    if ($options['append'] === FALSE || yes_or_no($options['append']) == 'yes') {
+        $options['a'] = FALSE;
+    } else if (yes_or_no($options['append']) != 'no') {
+        die('phpctags: Invalid value for "append" option');
+    }
+}
+
+if(isset($options['recurse'])) {
+    if ($options['recurse'] === FALSE || yes_or_no($options['recurse']) == 'yes') {
+        $options['R'] = FALSE;
+    } else if (yes_or_no($options['recurse']) != 'no') {
+        die('phpctags: Invalid value for "recurse" option');
+    }
+}
+
 $ctags = new PHPCtags();
-$ctags->export($file, $options);
+$result = '';
+if (isset($options['R'])) {
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(
+            $file,
+            FilesystemIterator::SKIP_DOTS |
+            FilesystemIterator::FOLLOW_SYMLINKS
+        )
+    );
+
+    $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
+    foreach ($iterator as $filename) {
+        if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+            continue;
+        }
+
+        if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
+            continue;
+        }
+
+        $result .= $ctags->export($filename, $options);
+    }
+} else {
+    $result = $ctags->export($file, $options);
+}
+
+if (isset($options['f']) && $options['f'] !== '-') {
+    $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
+} else {
+    $tagfile = fopen('php://stdout', 'w');
+}
+fwrite($tagfile, $result);
+fclose($tagfile);
+
+function yes_or_no($arg) {
+    if (preg_match('/\b[Y|y]([E|e][S|s])?\b/', $arg)) {
+        return 'yes';
+    } else if (preg_match('/\b[N|n]([O|o])?\b/', $arg)) {
+        return 'no';
+    } else {
+        return false;
+    }
+}
