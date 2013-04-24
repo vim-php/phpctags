@@ -79,6 +79,10 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('method' => $name));
             }
+        } elseif ($node instanceof PHPParser_Node_Stmt_If) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
             $cons = $node->consts[0];
