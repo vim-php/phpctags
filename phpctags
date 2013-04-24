@@ -138,10 +138,15 @@ try {
     die("phpctags: {$e->getMessage()}");
 }
 
+// write to a specified file
 if (isset($options['f']) && $options['f'] !== '-') {
     $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
-} else {
+// write to stdout only when instructed
+} else if (isset($options['f']) && $options['f'] === '-') {
     $tagfile = fopen('php://stdout', 'w');
+// write to file 'tags' by default
+} else {
+    $tagfile = fopen('tags', isset($options['a']) ? 'a' : 'w');
 }
 fwrite($tagfile, $result);
 fclose($tagfile);
