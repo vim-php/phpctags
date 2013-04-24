@@ -136,6 +136,7 @@ class PHPCtags
 
         if (!empty($kind) && !empty($name) && !empty($line)) {
             $structs[] = array(
+                'file' => $this->mFile,
                 'kind' => $kind,
                 'name' => $name,
                 'line' => $line,
@@ -154,8 +155,14 @@ class PHPCtags
     private function render($structs, $options)
     {
         $str = '';
-        $lines = file($this->mFile);
         foreach ($structs as $struct) {
+            $file = $struct['file'];
+
+            if (!isset($files[$file]))
+                $files[$file] = file($file);
+
+            $lines = $files[$file];
+
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
@@ -165,7 +172,7 @@ class PHPCtags
                 $str .= $struct['name'];
             }
 
-            $str .= "\t" . $this->mFile;
+            $str .= "\t" . $file;
 
             if ($options['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
@@ -225,9 +232,36 @@ class PHPCtags
 
     public function export($file, $options)
     {
-        //@todo Check for existence
-        $this->mFile = $file;
-        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+        $structs = array();
+        if (is_dir($file) && isset($options['R'])) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(
+                    $file,
+                    FilesystemIterator::SKIP_DOTS |
+                    FilesystemIterator::FOLLOW_SYMLINKS
+                )
+            );
+
+            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
+            foreach ($iterator as $filename) {
+                if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+                    continue;
+                }
+
+                if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
+                    continue;
+                }
+
+                //@todo Check for existence
+                $this->mFile = (string) $filename;
+                $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+            }
+        } else {
+            //@todo Check for existence
+            $this->mFile = $file;
+            $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+        }
         return $this->render($structs, $options);
     }
 }

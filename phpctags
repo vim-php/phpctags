@@ -78,32 +78,7 @@ if(isset($options['recurse'])) {
 }
 
 $ctags = new PHPCtags();
-$result = '';
-if (is_dir($file) && isset($options['R'])) {
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(
-            $file,
-            FilesystemIterator::SKIP_DOTS |
-            FilesystemIterator::FOLLOW_SYMLINKS
-        )
-    );
-
-    $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
-
-    foreach ($iterator as $filename) {
-        if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
-            continue;
-        }
-
-        if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
-            continue;
-        }
-
-        $result .= $ctags->export($filename, $options);
-    }
-} else {
-    $result = $ctags->export($file, $options);
-}
+$result = $ctags->export($file, $options);
 
 if (isset($options['f']) && $options['f'] !== '-') {
     $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
