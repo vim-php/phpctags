@@ -97,6 +97,10 @@ class PHPCtags
             //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Declare) {
             //@todo
+        } elseif ($node instanceof PHPParser_Node_Stmt_TryCatch) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Function) {
             $kind = 'f';
             $name = $node->name;
