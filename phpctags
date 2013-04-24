@@ -12,7 +12,7 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
-$options = getopt('af:R',array(
+$options = getopt('af:Nno:RV',array(
     'append::',
     'debug',
     'exclude:',
@@ -23,6 +23,11 @@ $options = getopt('af:R',array(
     'version',
     'memory::',
 ));
+
+// option -V is an alternative to --version
+if (isset($options['V'])) {
+    $options['version'] = FALSE;
+}
 
 if(!isset($options['debug'])) {
     error_reporting(0);
@@ -42,6 +47,30 @@ EOF;
 array_shift($argv);
 
 $file = array_pop($argv);
+
+// option -o is an alternative to -f
+if (isset($options['o']) && !isset($options['f'])) {
+    $options['f'] = $options['o'];
+}
+
+// if both -n and -N options are given, use the last specified one
+if (isset($options['n']) && isset($options['N'])) {
+    if (array_search('n', array_keys($options)) < array_search('N', array_keys($options))) {
+        unset($options['n']);
+    } else {
+        unset($options['N']);
+    }
+}
+
+// option -n is equivalent to --excmd=number
+if (isset($options['n']) && !isset($options['N'])) {
+    $options['excmd'] = 'number';
+}
+
+// option -N is equivalent to --excmd=pattern
+if (isset($options['N']) && !isset($options['n'])) {
+    $options['excmd'] = 'pattern';
+}
 
 if(!isset($options['excmd']))
     $options['excmd'] = 'pattern';
