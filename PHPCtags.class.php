@@ -20,6 +20,22 @@ class PHPCtags
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
     }
 
+    public function setMFile($file) {
+        if(empty($file)) {
+            throw new PHPCtagsException('No File specified.');
+        }
+
+        if(!file_exists($file)) {
+            throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : No such file');
+        }
+
+        if(!is_readable($file)) {
+            throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : File is not readable');
+        }
+
+        $this->mFile = realpath($file);
+    }
+
     public static function getMKinds()
     {
         return self::$mKinds;
@@ -253,15 +269,19 @@ class PHPCtags
                     continue;
                 }
 
-                //@todo Check for existence
-                $this->mFile = (string) $filename;
+                $this->setMFile((string) $filename);
                 $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
             }
         } else {
-            //@todo Check for existence
-            $this->mFile = $file;
+            $this->setMFile($file);
             $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
         }
         return $this->render($structs, $options);
+    }
+}
+
+class PHPCtagsException extends Exception {
+    public function __toString() {
+        return "PHPCtags: {$this->message}\n";
     }
 }

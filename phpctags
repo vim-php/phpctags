@@ -39,7 +39,9 @@ EOF;
     exit;
 }
 
-$file = realpath(array_pop($argv));
+array_shift($argv);
+
+$file = array_pop($argv);
 
 if(!isset($options['excmd']))
     $options['excmd'] = 'pattern';
@@ -77,8 +79,12 @@ if(isset($options['recurse'])) {
     }
 }
 
-$ctags = new PHPCtags();
-$result = $ctags->export($file, $options);
+try {
+    $ctags = new PHPCtags();
+    $result = $ctags->export($file, $options);
+} catch (Exception $e) {
+    die("phpctags: {$e->getMessage()}");
+}
 
 if (isset($options['f']) && $options['f'] !== '-') {
     $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
