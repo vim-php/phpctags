@@ -35,6 +35,8 @@ EOF;
     exit;
 }
 
+array_shift($argv);
+
 $file = array_pop($argv);
 
 if(!isset($options['excmd']))
