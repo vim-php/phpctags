@@ -48,6 +48,32 @@ class PHPCtags
         return 'public';
     }
 
+    /**
+     * stringSortByLine
+     *
+     * Sort a string based on its line delimiter
+     *
+     * @author Techlive Zheng
+     *
+     * @access public
+     * @static
+     *
+     * @param string  $str     string to be sorted
+     * @param boolean $foldcse case-insensitive sorting
+     *
+     * @return string sorted string
+     **/
+    public static function stringSortByLine($str, $foldcase=FALSE)
+    {
+        $arr = explode("\n", $str);
+        if (!$foldcase)
+            sort($arr, SORT_STRING);
+        else
+            sort($arr, SORT_STRING | SORT_FLAG_CASE);
+        $str = implode("\n", $arr);
+        return $str;
+    }
+
     private static function helperSortByLine($a, $b) {
         return $a['line'] > $b['line'] ? 1 : 0;
     }
@@ -163,7 +189,10 @@ class PHPCtags
 
         if(!empty($parent)) array_pop($scope);
 
-        usort($structs, 'self::helperSortByLine');
+        // if no --sort is given, sort by occurrence
+        if (!isset($options['sort']) || $options['sort'] == 'no') {
+            usort($structs, 'self::helperSortByLine');
+        }
 
         return $structs;
     }
@@ -243,6 +272,12 @@ class PHPCtags
 
             $str .= "\n";
         }
+
+        // sort the result as instructed
+        if (isset($options['sort']) && ($options['sort'] == 'yes' || $options['sort'] == 'foldcase')) {
+            $str = self::stringSortByLine($str, $options['sort'] == 'foldcase');
+        }
+
         return $str;
     }
 
