@@ -219,11 +219,7 @@ class PHPCtags
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            if ($struct['kind'] == 'v') {
-                $str .= "$" . $struct['name'];
-            } else {
-                $str .= $struct['name'];
-            }
+            $str .= $struct['name'];
 
             $str .= "\t" . $file;
 
