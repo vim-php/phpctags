@@ -75,6 +75,9 @@ abstract class PHPCtagsTestCase {
             $testcase_expect .= $line;
         }
 
+        // remove the last line ending
+        $testcase_expect = trim($testcase_expect);
+
         return $testcase_expect;
 
     }

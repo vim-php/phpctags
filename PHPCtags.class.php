@@ -281,6 +281,9 @@ class PHPCtags
             $str .= "\n";
         }
 
+        // remove the last line ending
+        $str = trim($str);
+
         // sort the result as instructed
         if (isset($options['sort']) && ($options['sort'] == 'yes' || $options['sort'] == 'foldcase')) {
             $str = self::stringSortByLine($str, $options['sort'] == 'foldcase');
