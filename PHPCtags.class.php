@@ -3,33 +3,34 @@ class PHPCtags
 {
     private $mFile;
 
-    private $mParser;
-
     private static $mKinds = array(
-            'c' => 'class',
-            'm' => 'method',
-            'f' => 'function',
-            'p' => 'property',
-            'd' => 'constant',
-            'v' => 'variable',
-            'i' => 'interface',
-        );
+        'c' => 'class',
+        'm' => 'method',
+        'f' => 'function',
+        'p' => 'property',
+        'd' => 'constant',
+        'v' => 'variable',
+        'i' => 'interface',
+    );
+
+    private $mParser;
 
     public function __construct()
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
     }
 
-    public function setMFile($file) {
-        if(empty($file)) {
+    public function setMFile($file)
+    {
+        if (empty($file)) {
             throw new PHPCtagsException('No File specified.');
         }
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : No such file');
         }
 
-        if(!is_readable($file)) {
+        if (!is_readable($file)) {
             throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : File is not readable');
         }
 
@@ -74,7 +75,8 @@ class PHPCtags
         return $str;
     }
 
-    private static function helperSortByLine($a, $b) {
+    private static function helperSortByLine($a, $b)
+    {
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
@@ -89,7 +91,7 @@ class PHPCtags
 
         $kind = $name = $line = $access = '';
 
-        if(!empty($parent)) array_push($scope, $parent);
+        if (!empty($parent)) array_push($scope, $parent);
 
         if (is_array($node)) {
             foreach ($node as $subNode) {
@@ -163,7 +165,7 @@ class PHPCtags
                 $this->struct($subNode);
             }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
-            if(is_string($node->var->name)) {
+            if (is_string($node->var->name)) {
                 $kind = 'v';
                 $node = $node->var;
                 $name = $node->name;
@@ -193,7 +195,7 @@ class PHPCtags
             );
         }
 
-        if(!empty($parent)) array_pop($scope);
+        if (!empty($parent)) array_pop($scope);
 
         // if no --sort is given, sort by occurrence
         if (!isset($options['sort']) || $options['sort'] == 'no') {
@@ -257,11 +259,11 @@ class PHPCtags
             #field=s
             if (in_array('s', $options['fields']) && !empty($struct['scope'])) {
                 $scope = array_pop($struct['scope']);
-                list($type,$name) = each($scope);
+                list($type, $name) = each($scope);
                 switch ($type) {
                     case 'method':
                         $scope = array_pop($struct['scope']);
-                        list($p_type,$p_name) = each($scope);
+                        list($p_type, $p_name) = each($scope);
                         $scope = 'method:' . $p_name . '::' . $name;
                         break;
                     default:
