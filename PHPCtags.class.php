@@ -108,8 +108,6 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('function' => $name));
             }
-        } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
-            //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Interface) {
             $kind = 'i';
             $name = $node->name;
