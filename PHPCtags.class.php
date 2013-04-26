@@ -121,6 +121,10 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('method' => $name));
             }
+        } elseif ($node instanceof PHPParser_Node_Stmt_If) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
             $cons = $node->consts[0];
@@ -135,6 +139,10 @@ class PHPCtags
             //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Declare) {
             //@todo
+        } elseif ($node instanceof PHPParser_Node_Stmt_TryCatch) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Function) {
             $kind = 'f';
             $name = $node->name;
@@ -142,8 +150,6 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('function' => $name));
             }
-        } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
-            //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Interface) {
             $kind = 'i';
             $name = $node->name;
