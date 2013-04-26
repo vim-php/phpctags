@@ -15,9 +15,12 @@ class PHPCtags
 
     private $mParser;
 
-    public function __construct()
+    private $mOptions;
+
+    public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+        $this->mOptions = $options;
     }
 
     public function setMFile($file)
@@ -198,14 +201,14 @@ class PHPCtags
         if (!empty($parent)) array_pop($scope);
 
         // if no --sort is given, sort by occurrence
-        if (!isset($options['sort']) || $options['sort'] == 'no') {
+        if (!isset($this->mOptions['sort']) || $this->mOptions['sort'] == 'no') {
             usort($structs, 'self::helperSortByLine');
         }
 
         return $structs;
     }
 
-    private function render($structs, $options)
+    private function render($structs)
     {
         $str = '';
         foreach ($structs as $struct) {
@@ -223,13 +226,13 @@ class PHPCtags
 
             $str .= "\t" . $file;
 
-            if ($options['excmd'] == 'number') {
+            if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
                 $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
             }
 
-            if ($options['format'] == 1) {
+            if ($this->mOptions['format'] == 1) {
                 $str .= "\n";
                 continue;
             }
@@ -237,23 +240,23 @@ class PHPCtags
             $str .= ";\"";
 
             #field=k, kind of tag as single letter
-            if (in_array('k', $options['fields'])) {
-                in_array('z', $options['fields']) && $str .= "kind:";
+            if (in_array('k', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . $struct['kind'];
             } else
             #field=K, kind of tag as fullname
-            if (in_array('K', $options['fields'])) {
-                in_array('z', $options['fields']) && $str .= "kind:";
+            if (in_array('K', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . self::$mKinds[$struct['kind']];
             }
 
             #field=n
-            if (in_array('n', $options['fields'])) {
+            if (in_array('n', $this->mOptions['fields'])) {
                 $str .= "\t" . "line:" . $struct['line'];
             }
 
             #field=s
-            if (in_array('s', $options['fields']) && !empty($struct['scope'])) {
+            if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
                 $scope = array_pop($struct['scope']);
                 list($type, $name) = each($scope);
                 switch ($type) {
@@ -270,7 +273,7 @@ class PHPCtags
             }
 
             #field=a
-            if (in_array('a', $options['fields']) && !empty($struct['access'])) {
+            if (in_array('a', $this->mOptions['fields']) && !empty($struct['access'])) {
                 $str .= "\t" . "access:" . $struct['access'];
             }
 
@@ -281,17 +284,17 @@ class PHPCtags
         $str = trim($str);
 
         // sort the result as instructed
-        if (isset($options['sort']) && ($options['sort'] == 'yes' || $options['sort'] == 'foldcase')) {
-            $str = self::stringSortByLine($str, $options['sort'] == 'foldcase');
+        if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
+            $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
         }
 
         return $str;
     }
 
-    public function export($file, $options)
+    public function export($file)
     {
         $structs = array();
-        if (is_dir($file) && isset($options['R'])) {
+        if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(
                     $file,
@@ -307,7 +310,7 @@ class PHPCtags
                     continue;
                 }
 
-                if (isset($options['exclude']) && false !== strpos($filename, $options['exclude'])) {
+                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
                     continue;
                 }
 
@@ -318,7 +321,7 @@ class PHPCtags
             $this->setMFile($file);
             $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
         }
-        return $this->render($structs, $options);
+        return $this->render($structs);
     }
 }
 
