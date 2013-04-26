@@ -15,11 +15,14 @@ class PHPCtags
 
     private $mParser;
 
+    private $mStructs;
+
     private $mOptions;
 
     public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+        $this->mStructs = array();
         $this->mOptions = $options;
     }
 
@@ -208,10 +211,10 @@ class PHPCtags
         return $structs;
     }
 
-    private function render($structs)
+    private function render()
     {
         $str = '';
-        foreach ($structs as $struct) {
+        foreach ($this->mStructs as $struct) {
             $file = $struct['file'];
 
             if (!isset($files[$file]))
@@ -293,7 +296,6 @@ class PHPCtags
 
     public function export($file)
     {
-        $structs = array();
         if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(
@@ -315,13 +317,13 @@ class PHPCtags
                 }
 
                 $this->setMFile((string) $filename);
-                $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+                $this->mStructs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
             }
         } else {
             $this->setMFile($file);
-            $structs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+            $this->mStructs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
         }
-        return $this->render($structs);
+        return $this->render();
     }
 }
 
