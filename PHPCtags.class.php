@@ -317,11 +317,17 @@ class PHPCtags
                 }
 
                 $this->setMFile((string) $filename);
-                $this->mStructs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+                $this->mStructs = array_merge(
+                    $this->mStructs,
+                    $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+                );
             }
         } else {
             $this->setMFile($file);
-            $this->mStructs += $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
+            $this->mStructs = array_merge(
+                $this->mStructs,
+                $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+            );
         }
         return $this->render();
     }
