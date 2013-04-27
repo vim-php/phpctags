@@ -25,6 +25,18 @@ $options = getopt('af:Nno:RuV', array(
     'memory::',
 ));
 
+// prune options and its value from the $argv array
+$argv_ = array();
+foreach ($options as $option => $value) {
+  foreach ($argv as $key => $chunk) {
+    $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';
+    if ($chunk == $value && $argv[$key-1][0] == '-' || preg_match($regex, $chunk)) {
+      array_push($argv_, $key);
+    }
+  }
+}
+while ($key = array_pop($argv_)) unset($argv[$key]);
+
 // option -V is an alternative to --version
 if (isset($options['V'])) {
     $options['version'] = FALSE;
