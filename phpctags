@@ -12,6 +12,13 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
+$version = <<<'EOF'
+Version: 0.2
+
+Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
+Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
+EOF;
+
 $options = getopt('af:Nno:RuV', array(
     'append::',
     'debug',
@@ -19,11 +26,65 @@ $options = getopt('af:Nno:RuV', array(
     'excmd::',
     'fields::',
     'format::',
+    'help',
     'recurse::',
     'sort::',
     'version',
     'memory::',
 ));
+
+$options_info = <<<'EOF'
+phpctags currently only supports a subset of the original ctags' options.
+
+Usage: phpctags [options] [file(s)]
+
+  -a   Append the tags to an existing tag file.
+  -f <name>
+       Write tags to specified file. Value of "-" writes tags to stdout
+       ["tags"].
+  -n   Equivalent to --excmd=number.
+  -N   Equivalent to --excmd=pattern.
+  -o   Alternative for -f.
+  -R   Equivalent to --recurse.
+  -u   Equivalent to --sort=no.
+  -V   Equivalent to --verbose.
+  --append=[yes|no]
+       Should tags should be appended to existing tag file [no]?
+  --debug
+       phpctags only
+       Repect PHP's error level configuration.
+  --exclude=pattern
+      Exclude files and directories matching 'pattern'.
+  --excmd=number|pattern|mix
+       Uses the specified type of EX command to locate tags [mix].
+  --fields=[+|-]flags
+      Include selected extension fields (flags: "afmikKlnsStz") [fks].
+  --format=level
+       Force output of specified tag file format [2].
+  --help
+       Print this option summary.
+  --memory=[-1|bytes|KMG]
+       phpctags only
+       Set how many memories phpctags could use.
+  --recurse=[yes|no]
+       Recurse into directories supplied on command line [no].
+  --sort=[yes|no|foldcase]
+       Should tags be sorted (optionally ignoring case) [yes]?.
+  --version
+       Print version identifier to standard output.
+EOF;
+
+// prune options and its value from the $argv array
+$argv_ = array();
+foreach ($options as $option => $value) {
+  foreach ($argv as $key => $chunk) {
+    $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';
+    if ($chunk == $value && $argv[$key-1][0] == '-' || preg_match($regex, $chunk)) {
+      array_push($argv_, $key);
+    }
+  }
+}
+while ($key = array_pop($argv_)) unset($argv[$key]);
 
 // option -V is an alternative to --version
 if (isset($options['V'])) {
@@ -34,20 +95,20 @@ if (!isset($options['debug'])) {
     error_reporting(0);
 }
 
+if (isset($options['help'])) {
+    echo $version;
+    echo PHP_EOL;
+    echo PHP_EOL;
+    echo $options_info;
+    exit;
+}
+
 if (isset($options['version'])) {
-    echo <<<'EOF'
-Version: 0.2
-
-Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
-Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
-
-EOF;
+    echo $version;
     exit;
 }
 
 array_shift($argv);
-
-$file = array_pop($argv);
 
 // option -o is an alternative to -f
 if (isset($options['o']) && !isset($options['f'])) {
@@ -133,7 +194,8 @@ if (isset($options['recurse'])) {
 
 try {
     $ctags = new PHPCtags($options);
-    $result = $ctags->export($file);
+    $ctags->addFiles($argv);
+    $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}");
 }

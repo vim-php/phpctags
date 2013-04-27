@@ -59,9 +59,10 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
         $phpctags_object = new PHPCtags(
             $testcase_object->getOptions()
         );
-        $testcase_result = $phpctags_object->export(
+        $phpctags_object->addFile(
             $testcase_object->getExample()
         );
+        $testcase_result = $phpctags_object->export();
 
         $expected_result = __DIR__ . '/' . $testcase_id . '.testcase.expect';
         $acctural_result = __DIR__ . '/' . $testcase_id . '.testcase.result';
