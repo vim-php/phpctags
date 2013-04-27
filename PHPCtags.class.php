@@ -3,6 +3,8 @@ class PHPCtags
 {
     private $mFile;
 
+    private $mFiles;
+
     private static $mKinds = array(
         'c' => 'class',
         'm' => 'method',
@@ -46,6 +48,18 @@ class PHPCtags
     public static function getMKinds()
     {
         return self::$mKinds;
+    }
+
+    public function addFile($file)
+    {
+        $this->mFiles[realpath($file)] = 1;
+    }
+
+    public function addFiles($files)
+    {
+        foreach ($files as $file) {
+            $this->addFile($file);
+        }
     }
 
     private function getNodeAccess($node)
@@ -294,7 +308,20 @@ class PHPCtags
         return $str;
     }
 
-    public function export($file)
+    public function export()
+    {
+        if (empty($this->mFiles)) {
+            throw new PHPCtagsException('No File specified.');
+        }
+
+        foreach (array_keys($this->mFiles) as $file) {
+            $this->process($file);
+        }
+
+        return $this->render();
+    }
+
+    private function process($file)
     {
         if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
@@ -329,7 +356,6 @@ class PHPCtags
                 $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
             );
         }
-        return $this->render();
     }
 }
 

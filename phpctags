@@ -59,8 +59,6 @@ EOF;
 
 array_shift($argv);
 
-$file = array_pop($argv);
-
 // option -o is an alternative to -f
 if (isset($options['o']) && !isset($options['f'])) {
     $options['f'] = $options['o'];
@@ -145,7 +143,8 @@ if (isset($options['recurse'])) {
 
 try {
     $ctags = new PHPCtags($options);
-    $result = $ctags->export($file);
+    $ctags->addFiles($argv);
+    $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}");
 }
