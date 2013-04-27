@@ -39,3 +39,4 @@ Acknowledgements
 
 * [Snapi](https://github.com/sanpii) for composer support.
 * [DeMarko](https://github.com/DeMarko) for memory limit support.
+* [Sander Marechal](https://github.com/sandermarechal) for improve console support

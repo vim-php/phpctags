@@ -1,3 +1,12 @@
+Version 0.3
+-----------
+
+* able to control the memroy size to be used
+  thanks to Dannel Jurado
+* improved command line compatiblity to ctags
+  thanks to Sander Marechal
+* bug fixes: #5 and #7
+
 Version 0.2
 -----------
 
