@@ -12,7 +12,7 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
-$options = getopt('af:Nno:RuV',array(
+$options = getopt('af:Nno:RuV', array(
     'append::',
     'debug',
     'exclude:',
@@ -30,11 +30,11 @@ if (isset($options['V'])) {
     $options['version'] = FALSE;
 }
 
-if(!isset($options['debug'])) {
+if (!isset($options['debug'])) {
     error_reporting(0);
 }
 
-if(isset($options['version'])) {
+if (isset($options['version'])) {
     echo <<<'EOF'
 Version: 0.2
 
@@ -73,14 +73,14 @@ if (isset($options['N']) && !isset($options['n'])) {
     $options['excmd'] = 'pattern';
 }
 
-if(!isset($options['excmd']))
+if (!isset($options['excmd']))
     $options['excmd'] = 'pattern';
-if(!isset($options['format']))
+if (!isset($options['format']))
     $options['format'] = 2;
-if(!isset($options['memory']))
+if (!isset($options['memory']))
     $options['memory'] = '128M';
-if(!isset($options['fields'])) {
-    $options['fields'] = array('n', 'k','s', 'a');
+if (!isset($options['fields'])) {
+    $options['fields'] = array('n', 'k', 's', 'a');
 } else {
     $options['fields'] = str_split($options['fields']);
 }
@@ -115,7 +115,7 @@ if (isset($options['memory'])) {
     }
 }
 
-if(isset($options['append'])) {
+if (isset($options['append'])) {
     if ($options['append'] === FALSE || yes_or_no($options['append']) == 'yes') {
         $options['a'] = FALSE;
     } else if (yes_or_no($options['append']) != 'no') {
@@ -123,7 +123,7 @@ if(isset($options['append'])) {
     }
 }
 
-if(isset($options['recurse'])) {
+if (isset($options['recurse'])) {
     if ($options['recurse'] === FALSE || yes_or_no($options['recurse']) == 'yes') {
         $options['R'] = FALSE;
     } else if (yes_or_no($options['recurse']) != 'no') {
@@ -132,8 +132,8 @@ if(isset($options['recurse'])) {
 }
 
 try {
-    $ctags = new PHPCtags();
-    $result = $ctags->export($file, $options);
+    $ctags = new PHPCtags($options);
+    $result = $ctags->export($file);
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}");
 }
