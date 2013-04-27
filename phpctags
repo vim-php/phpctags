@@ -192,6 +192,11 @@ if (isset($options['recurse'])) {
     }
 }
 
+// if option -R is given and no file is specified, use current working directory
+if (isset($options['R']) && empty($argv)) {
+    $argv[] = getcwd();
+}
+
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
