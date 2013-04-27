@@ -17,7 +17,6 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new PHPCtags();
     }
 
     /**
@@ -52,18 +51,18 @@ class PHPCtagsTest extends PHPUnit_Framework_TestCase
     public function testExport($testcase)
     {
         require_once __DIR__ . '/testcases/' . $testcase;
+
         $testcase_id = strstr($testcase, '.', true);
         $testcase_class = 't_' . $testcase_id;
         $testcase_object = new $testcase_class;
-
         $testcase_expect = $testcase_object->getExpectResult();
-
-        ob_start();
-        $testcase_example = $testcase_object->getExample();
-        $testcase_options = $testcase_object->getOptions();
-        $this->object->export($testcase_example, $testcase_options);
-        $testcase_result = ob_get_contents();
-        ob_end_clean();
+        $phpctags_object = new PHPCtags(
+            $testcase_object->getOptions()
+        );
+        $phpctags_object->addFile(
+            $testcase_object->getExample()
+        );
+        $testcase_result = $phpctags_object->export();
 
         $expected_result = __DIR__ . '/' . $testcase_id . '.testcase.expect';
         $acctural_result = __DIR__ . '/' . $testcase_id . '.testcase.result';

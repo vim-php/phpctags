@@ -3,26 +3,63 @@ class PHPCtags
 {
     private $mFile;
 
-    private $mParser;
+    private $mFiles;
 
     private static $mKinds = array(
-            'c' => 'class',
-            'm' => 'method',
-            'f' => 'function',
-            'p' => 'property',
-            'd' => 'constant',
-            'v' => 'variable',
-            'i' => 'interface',
-        );
+        'c' => 'class',
+        'm' => 'method',
+        'f' => 'function',
+        'p' => 'property',
+        'd' => 'constant',
+        'v' => 'variable',
+        'i' => 'interface',
+    );
 
-    public function __construct()
+    private $mParser;
+
+    private $mStructs;
+
+    private $mOptions;
+
+    public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
+        $this->mStructs = array();
+        $this->mOptions = $options;
+    }
+
+    public function setMFile($file)
+    {
+        if (empty($file)) {
+            throw new PHPCtagsException('No File specified.');
+        }
+
+        if (!file_exists($file)) {
+            throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : No such file');
+        }
+
+        if (!is_readable($file)) {
+            throw new PHPCtagsException('Warning: cannot open source file "' . $file . '" : File is not readable');
+        }
+
+        $this->mFile = realpath($file);
     }
 
     public static function getMKinds()
     {
         return self::$mKinds;
+    }
+
+    public function addFile($file)
+    {
+        $this->mFiles[realpath($file)] = 1;
+    }
+
+    public function addFiles($files)
+    {
+        foreach ($files as $file) {
+            $this->addFile($file);
+        }
     }
 
     private function getNodeAccess($node)
@@ -32,7 +69,34 @@ class PHPCtags
         return 'public';
     }
 
-    private static function helperSortByLine($a, $b) {
+    /**
+     * stringSortByLine
+     *
+     * Sort a string based on its line delimiter
+     *
+     * @author Techlive Zheng
+     *
+     * @access public
+     * @static
+     *
+     * @param string  $str     string to be sorted
+     * @param boolean $foldcse case-insensitive sorting
+     *
+     * @return string sorted string
+     **/
+    public static function stringSortByLine($str, $foldcase=FALSE)
+    {
+        $arr = explode("\n", $str);
+        if (!$foldcase)
+            sort($arr, SORT_STRING);
+        else
+            sort($arr, SORT_STRING | SORT_FLAG_CASE);
+        $str = implode("\n", $arr);
+        return $str;
+    }
+
+    private static function helperSortByLine($a, $b)
+    {
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
@@ -47,7 +111,7 @@ class PHPCtags
 
         $kind = $name = $line = $access = '';
 
-        if(!empty($parent)) array_push($scope, $parent);
+        if (!empty($parent)) array_push($scope, $parent);
 
         if (is_array($node)) {
             foreach ($node as $subNode) {
@@ -79,6 +143,10 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('method' => $name));
             }
+        } elseif ($node instanceof PHPParser_Node_Stmt_If) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
             $cons = $node->consts[0];
@@ -93,6 +161,10 @@ class PHPCtags
             //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Declare) {
             //@todo
+        } elseif ($node instanceof PHPParser_Node_Stmt_TryCatch) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof PHPParser_Node_Stmt_Function) {
             $kind = 'f';
             $name = $node->name;
@@ -100,8 +172,6 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('function' => $name));
             }
-        } elseif ($node instanceof PHPParser_Node_Stmt_Trait) {
-            //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Interface) {
             $kind = 'i';
             $name = $node->name;
@@ -115,7 +185,7 @@ class PHPCtags
                 $this->struct($subNode);
             }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
-            if(is_string($node->var->name)) {
+            if (is_string($node->var->name)) {
                 $kind = 'v';
                 $node = $node->var;
                 $name = $node->name;
@@ -136,6 +206,7 @@ class PHPCtags
 
         if (!empty($kind) && !empty($name) && !empty($line)) {
             $structs[] = array(
+                'file' => $this->mFile,
                 'kind' => $kind,
                 'name' => $name,
                 'line' => $line,
@@ -144,36 +215,41 @@ class PHPCtags
             );
         }
 
-        if(!empty($parent)) array_pop($scope);
+        if (!empty($parent)) array_pop($scope);
 
-        usort($structs, 'self::helperSortByLine');
+        // if no --sort is given, sort by occurrence
+        if (!isset($this->mOptions['sort']) || $this->mOptions['sort'] == 'no') {
+            usort($structs, 'self::helperSortByLine');
+        }
 
         return $structs;
     }
 
-    private function render($structs, $options)
+    private function render()
     {
         $str = '';
-        $lines = file($this->mFile);
-        foreach ($structs as $struct) {
+        foreach ($this->mStructs as $struct) {
+            $file = $struct['file'];
+
+            if (!isset($files[$file]))
+                $files[$file] = file($file);
+
+            $lines = $files[$file];
+
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            if ($struct['kind'] == 'v') {
-                $str .= "$" . $struct['name'];
-            } else {
-                $str .= $struct['name'];
-            }
+            $str .= $struct['name'];
 
-            $str .= "\t" . $this->mFile;
+            $str .= "\t" . $file;
 
-            if ($options['excmd'] == 'number') {
+            if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
                 $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
             }
 
-            if ($options['format'] == 1) {
+            if ($this->mOptions['format'] == 1) {
                 $str .= "\n";
                 continue;
             }
@@ -181,29 +257,29 @@ class PHPCtags
             $str .= ";\"";
 
             #field=k, kind of tag as single letter
-            if (in_array('k', $options['fields'])) {
-                in_array('z', $options['fields']) && $str .= "kind:";
+            if (in_array('k', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . $struct['kind'];
             } else
             #field=K, kind of tag as fullname
-            if (in_array('K', $options['fields'])) {
-                in_array('z', $options['fields']) && $str .= "kind:";
+            if (in_array('K', $this->mOptions['fields'])) {
+                in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 $str .= "\t" . self::$mKinds[$struct['kind']];
             }
 
             #field=n
-            if (in_array('n', $options['fields'])) {
+            if (in_array('n', $this->mOptions['fields'])) {
                 $str .= "\t" . "line:" . $struct['line'];
             }
 
             #field=s
-            if (in_array('s', $options['fields']) && !empty($struct['scope'])) {
+            if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
                 $scope = array_pop($struct['scope']);
-                list($type,$name) = each($scope);
+                list($type, $name) = each($scope);
                 switch ($type) {
                     case 'method':
                         $scope = array_pop($struct['scope']);
-                        list($p_type,$p_name) = each($scope);
+                        list($p_type, $p_name) = each($scope);
                         $scope = 'method:' . $p_name . '::' . $name;
                         break;
                     default:
@@ -214,20 +290,77 @@ class PHPCtags
             }
 
             #field=a
-            if (in_array('a', $options['fields']) && !empty($struct['access'])) {
+            if (in_array('a', $this->mOptions['fields']) && !empty($struct['access'])) {
                 $str .= "\t" . "access:" . $struct['access'];
             }
 
             $str .= "\n";
         }
+
+        // remove the last line ending
+        $str = trim($str);
+
+        // sort the result as instructed
+        if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
+            $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
+        }
+
         return $str;
     }
 
-    public function export($file, $options)
+    public function export()
     {
-        //@todo Check for existence
-        $this->mFile = $file;
-        $structs = $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE);
-        echo $this->render($structs, $options);
+        if (empty($this->mFiles)) {
+            throw new PHPCtagsException('No File specified.');
+        }
+
+        foreach (array_keys($this->mFiles) as $file) {
+            $this->process($file);
+        }
+
+        return $this->render();
+    }
+
+    private function process($file)
+    {
+        if (is_dir($file) && isset($this->mOptions['R'])) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(
+                    $file,
+                    FilesystemIterator::SKIP_DOTS |
+                    FilesystemIterator::FOLLOW_SYMLINKS
+                )
+            );
+
+            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
+            foreach ($iterator as $filename) {
+                if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+                    continue;
+                }
+
+                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
+                    continue;
+                }
+
+                $this->setMFile((string) $filename);
+                $this->mStructs = array_merge(
+                    $this->mStructs,
+                    $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+                );
+            }
+        } else {
+            $this->setMFile($file);
+            $this->mStructs = array_merge(
+                $this->mStructs,
+                $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+            );
+        }
+    }
+}
+
+class PHPCtagsException extends Exception {
+    public function __toString() {
+        return "PHPCtags: {$this->message}\n";
     }
 }
