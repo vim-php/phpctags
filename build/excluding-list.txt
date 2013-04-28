@@ -1,3 +1,4 @@
+bin/
 build/
 test/
 phpctags.sh
