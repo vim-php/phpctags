@@ -1,0 +1,7 @@
+.git/*
+.gitignore
+bin/*
+build/*
+composer.phar
+tests/*
+phpctags.sh
