@@ -343,18 +343,26 @@ class PHPCtags
                     continue;
                 }
 
-                $this->setMFile((string) $filename);
+                try {
+                    $this->setMFile((string) $filename);
+                    $this->mStructs = array_merge(
+                        $this->mStructs,
+                        $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+                    );
+                } catch(Exception $e) {
+                    echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                }
+            }
+        } else {
+            try {
+                $this->setMFile($file);
                 $this->mStructs = array_merge(
                     $this->mStructs,
                     $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
                 );
+            } catch(Exception $e) {
+                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
             }
-        } else {
-            $this->setMFile($file);
-            $this->mStructs = array_merge(
-                $this->mStructs,
-                $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
-            );
         }
     }
 }
