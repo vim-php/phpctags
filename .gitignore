@@ -1,4 +1,5 @@
-vendor
-composer.phar
 tests/*.expect
 tests/*.result
+build/
+vendor/
+phpctags
