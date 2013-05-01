@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     require($autoload);
@@ -100,11 +99,13 @@ if (isset($options['help'])) {
     echo PHP_EOL;
     echo PHP_EOL;
     echo $options_info;
+    echo PHP_EOL;
     exit;
 }
 
 if (isset($options['version'])) {
     echo $version;
+    echo PHP_EOL;
     exit;
 }
 
@@ -158,7 +159,7 @@ if (isset($options['sort'])) {
     } else if ($options['sort'] == 'foldcase') {
         $options['sort'] = 'foldcase';
     } else {
-        die('phpctags: Invalid value for "sort" option');
+        die('phpctags: Invalid value for "sort" option'.PHP_EOL);
     }
 // option -n is equivalent to --sort=no
 } else if (isset($options['u'])) {
@@ -180,7 +181,7 @@ if (isset($options['append'])) {
     if ($options['append'] === FALSE || yes_or_no($options['append']) == 'yes') {
         $options['a'] = FALSE;
     } else if (yes_or_no($options['append']) != 'no') {
-        die('phpctags: Invalid value for "append" option');
+        die('phpctags: Invalid value for "append" option'.PHP_EOL);
     }
 }
 
@@ -188,7 +189,7 @@ if (isset($options['recurse'])) {
     if ($options['recurse'] === FALSE || yes_or_no($options['recurse']) == 'yes') {
         $options['R'] = FALSE;
     } else if (yes_or_no($options['recurse']) != 'no') {
-        die('phpctags: Invalid value for "recurse" option');
+        die('phpctags: Invalid value for "recurse" option'.PHP_EOL);
     }
 }
 
@@ -202,7 +203,7 @@ try {
     $ctags->addFiles($argv);
     $result = $ctags->export();
 } catch (Exception $e) {
-    die("phpctags: {$e->getMessage()}");
+    die("phpctags: {$e->getMessage()}".PHP_EOL);
 }
 
 // write to a specified file
@@ -215,7 +216,18 @@ if (isset($options['f']) && $options['f'] !== '-') {
 } else {
     $tagfile = fopen('tags', isset($options['a']) ? 'a' : 'w');
 }
-fwrite($tagfile, $result);
+
+$mode = ($options['sort'] == 'yes' ? 1 : ($options['sort'] == 'foldcase' ? 2 : 0));
+$tagline = <<<EOF
+!_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED\t{$mode}\t/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR\ttechlivezheng\t/techlivezheng@gmail.com/
+!_TAG_PROGRAM_NAME\tphpctags\t//
+!_TAG_PROGRAM_URL\thttps://github.com/techlivezheng/phpctags\t/official site/
+!_TAG_PROGRAM_VERSION\t0.3\t//\n
+EOF;
+
+fwrite($tagfile, $tagline.$result);
 fclose($tagfile);
 
 function yes_or_no($arg) {
