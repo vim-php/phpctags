@@ -1,6 +1,8 @@
 <?php
 class PHPCtags
 {
+    const VERSION = 0.3;
+
     private $mFile;
 
     private $mFiles;

@@ -11,9 +11,9 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
-$version = <<<'EOF'
-Version: 0.3
+$version = PHPCtags::VERSION;
 
+$copyright = <<<'EOF'
 Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
@@ -95,7 +95,7 @@ if (!isset($options['debug'])) {
 }
 
 if (isset($options['help'])) {
-    echo $version;
+    echo "Version: ".$version."\n\n".$copyright;
     echo PHP_EOL;
     echo PHP_EOL;
     echo $options_info;
@@ -104,7 +104,7 @@ if (isset($options['help'])) {
 }
 
 if (isset($options['version'])) {
-    echo $version;
+    echo "Version: ".$version."\n\n".$copyright;
     echo PHP_EOL;
     exit;
 }
@@ -224,7 +224,7 @@ $tagline = <<<EOF
 !_TAG_PROGRAM_AUTHOR\ttechlivezheng\t/techlivezheng@gmail.com/
 !_TAG_PROGRAM_NAME\tphpctags\t//
 !_TAG_PROGRAM_URL\thttps://github.com/techlivezheng/phpctags\t/official site/
-!_TAG_PROGRAM_VERSION\t0.3\t//\n
+!_TAG_PROGRAM_VERSION\t${version}\t//\n
 EOF;
 
 fwrite($tagfile, $tagline.$result);
