@@ -20,6 +20,7 @@ dist-clean:
 	@echo "Cleaning old build files and vendor libraries ..."
 	@rm -rf ./build
 	@rm -rf ./vendor
+	@rm -f  ./phpctags
 	@echo "Done!"
 
 .PHONY: install
