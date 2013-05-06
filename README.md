@@ -18,6 +18,13 @@ Enjoy!
 Installation
 ------------
 
+> We currently only support building PHAR executable for \*nix like platform
+which provides `make` utility. If you are interested in building an executable
+for other platform, especially for Windows, please help yourself out. It
+should be easy though (Apologize for not being able to provide any help for
+this, I am really not a Windows guy), it also would be great if someone could
+provide a patch for this.
+
 Installation is simple, just run `make` in the root directory of the source,
 you will get a `phpctags` PHAR executable, add it to your `$PATH`, then you
 can invoke `phpcatgs` directly from anywhere.
