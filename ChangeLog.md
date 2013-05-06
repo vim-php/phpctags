@@ -1,3 +1,12 @@
+Version 0.4
+-----------
+
+* add tagline support
+  thanks to Mark Wu
+* add a Makefile to build stand-alone PHAR executable
+  thanks to Mark Wu
+* update PHPParser dependency to version 0.9.3
+
 Version 0.3
 -----------
 
