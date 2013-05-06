@@ -1,3 +1,8 @@
+Version 0.4.1
+-------------
+
+* Add explaination for PHAR supported platforms
+
 Version 0.4
 -----------
 
