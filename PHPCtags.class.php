@@ -193,6 +193,13 @@ class PHPCtags
                 $name = $node->name;
                 $line = $node->getLine();
             }
+        } elseif ($node instanceof PHPParser_Node_Expr_AssignRef) {
+            if (is_string($node->var->name)) {
+                $kind = 'v';
+                $node = $node->var;
+                $name = $node->name;
+                $line = $node->getLine();
+            }
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
                 case 'define':
