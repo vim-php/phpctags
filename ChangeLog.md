@@ -1,3 +1,9 @@
+Version 0.4.2
+-------------
+
+* Add assign reference support to phpctags
+  thanks to Mark Wu
+
 Version 0.4.1
 -------------
 
