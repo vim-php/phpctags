@@ -111,7 +111,8 @@ class PHPCtags
             $structs = array();
         }
 
-        $kind = $name = $line = $access = '';
+        $kind = $name = $line = $access = $extends = '';
+        $implements = array();
 
         if (!empty($parent)) array_push($scope, $parent);
 
@@ -122,6 +123,8 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Class) {
             $kind = 'c';
             $name = $node->name;
+            $extends = $node->extends;
+            $implements = $node->implements;
             $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('class' => $name));
@@ -218,6 +221,8 @@ class PHPCtags
                 'file' => $this->mFile,
                 'kind' => $kind,
                 'name' => $name,
+                'extends' => $extends,
+                'implements' => $implements,
                 'line' => $line,
                 'scope' => $scope,
                 'access' => $access,
@@ -296,6 +301,21 @@ class PHPCtags
                         break;
                 }
                 $str .= "\t" . $scope;
+            }
+
+            #field=i
+            if(in_array('i', $this->mOptions['fields'])) {
+                $inherits = array();
+                if(!empty($struct['extends'])) {
+                    $inherits[] = $struct['extends']->toString();
+                }
+                if(!empty($struct['implements'])) {
+                    foreach($struct['implements'] as $interface) {
+                        $inherits[] = $interface->toString();
+                    }
+                }
+                if(!empty($inherits))
+                    $str .= "\t" . 'inherits:' . implode(',', $inherits);
             }
 
             #field=a
