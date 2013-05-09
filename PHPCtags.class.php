@@ -15,6 +15,7 @@ class PHPCtags
         'd' => 'constant',
         'v' => 'variable',
         'i' => 'interface',
+        'n' => 'namespace',
     );
 
     private $mParser;
