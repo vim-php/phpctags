@@ -8,6 +8,7 @@ class PHPCtags
     private $mFiles;
 
     private static $mKinds = array(
+        't' => 'trait',
         'c' => 'class',
         'm' => 'method',
         'f' => 'function',
@@ -15,7 +16,6 @@ class PHPCtags
         'd' => 'constant',
         'v' => 'variable',
         'i' => 'interface',
-        't' => 'trait',
     );
 
     private $mParser;
