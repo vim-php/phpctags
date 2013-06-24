@@ -8,6 +8,7 @@ class PHPCtags
     private $mFiles;
 
     private static $mKinds = array(
+        't' => 'trait',
         'c' => 'class',
         'm' => 'method',
         'f' => 'function',
@@ -184,6 +185,13 @@ class PHPCtags
             $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('interface' => $name));
+            }
+        } elseif ($node instanceof PHPParser_Node_Stmt_Trait ) {
+            $kind = 't';
+            $name = $node->name;
+            $line = $node->getLine();
+            foreach ($node as $subNode) {
+                $this->struct($subNode, FALSE, array('trait' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
             $kind = 'n';
