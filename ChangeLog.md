@@ -1,3 +1,9 @@
+Version 0.5.1
+-------------
+
+* Fix building compatiblity with PHP 5.3.*
+  thanks to grep-awesome@github
+
 Version 0.5
 -----------
 
