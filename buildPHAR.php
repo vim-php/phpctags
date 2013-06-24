@@ -40,7 +40,7 @@ $phar->buildFromIterator(
 
                 foreach($excludes as $exclude) {
                     if (fnmatch(getcwd().'/'.$exclude, $current->getPathName())) {
-                            return false;
+                        return false;
                     }
                 }
 
