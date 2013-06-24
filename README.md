@@ -4,7 +4,7 @@ phpctags
 An enhanced php [ctags](http://ctags.sourceforge.net/) index file generator
 compatible with http://ctags.sourceforge.net/FORMAT.
 
-Using [PHP_Parse](https://github.com/nikic/PHP-Parser) as PHP syntax parsing
+Using [PHP_Parser](https://github.com/nikic/PHP-Parser) as PHP syntax parsing
 backend, written in pure PHP. The generated ctags index file contains scope
 and access information about class's methods and properties.
 
