@@ -1,7 +1,7 @@
 <?php
 class PHPCtags
 {
-    const VERSION = '0.5';
+    const VERSION = '0.5.1';
 
     private $mFile;
 
