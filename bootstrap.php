@@ -18,7 +18,7 @@ Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
 
-$options = getopt('af:Nno:RuV', array(
+$options = getopt('af:Nno:RuVv', array(
     'append::',
     'debug',
     'exclude:',
@@ -46,7 +46,8 @@ Usage: phpctags [options] [file(s)]
   -o   Alternative for -f.
   -R   Equivalent to --recurse.
   -u   Equivalent to --sort=no.
-  -V   Equivalent to --verbose.
+  -v   Equivalent to --verbose.
+  -V   Equivalent to --version.
   --append=[yes|no]
        Should tags should be appended to existing tag file [no]?
   --debug
