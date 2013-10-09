@@ -43,7 +43,7 @@ vendor: composer.lock build/composer.phar
 	@touch vendor/
 
 build/phpctags.phar: vendor $(source) | build
-	@php -dphar.readonly=0 buildPHAR.php
+	@php -dextension=phar.so -dextension=openssl.so -dphar.readonly=0 buildPHAR.php
 	@chmod +x build/phpctags.phar
 
 phpctags: build/phpctags.phar
