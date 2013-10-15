@@ -18,7 +18,7 @@ Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
 
-$options = getopt('af:Nno:RuV', array(
+$options = getopt('aC:f:Nno:RuvV', array(
     'append::',
     'debug',
     'exclude:',
@@ -41,12 +41,14 @@ Usage: phpctags [options] [file(s)]
   -f <name>
        Write tags to specified file. Value of "-" writes tags to stdout
        ["tags"].
+  -C <name>
+       Use a cache file to store tags for faster updates.
   -n   Equivalent to --excmd=number.
   -N   Equivalent to --excmd=pattern.
   -o   Alternative for -f.
   -R   Equivalent to --recurse.
   -u   Equivalent to --sort=no.
-  -V   Equivalent to --verbose.
+  -v   Equivalent to --verbose.
   --append=[yes|no]
        Should tags should be appended to existing tag file [no]?
   --debug
@@ -75,6 +77,7 @@ EOF;
 
 // prune options and its value from the $argv array
 $argv_ = array();
+
 foreach ($options as $option => $value) {
   foreach ($argv as $key => $chunk) {
     $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';
@@ -201,6 +204,7 @@ if (isset($options['R']) && empty($argv)) {
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
+    $ctags->setCacheFile(isset($options['C']) ? $options['C'] : null);
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
