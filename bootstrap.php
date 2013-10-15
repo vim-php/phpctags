@@ -18,7 +18,7 @@ Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
 
-$options = getopt('af:Nno:RuV', array(
+$options = getopt('aC:f:Nno:RuvV', array(
     'append::',
     'debug',
     'exclude:',
@@ -46,7 +46,8 @@ Usage: phpctags [options] [file(s)]
   -o   Alternative for -f.
   -R   Equivalent to --recurse.
   -u   Equivalent to --sort=no.
-  -V   Equivalent to --verbose.
+  -v   Equivalent to --verbose.
+  -V   Equivalent to --version.
   --append=[yes|no]
        Should tags should be appended to existing tag file [no]?
   --debug
@@ -69,12 +70,13 @@ Usage: phpctags [options] [file(s)]
        Recurse into directories supplied on command line [no].
   --sort=[yes|no|foldcase]
        Should tags be sorted (optionally ignoring case) [yes]?.
-  --version
+  --Version
        Print version identifier to standard output.
 EOF;
 
 // prune options and its value from the $argv array
 $argv_ = array();
+
 foreach ($options as $option => $value) {
   foreach ($argv as $key => $chunk) {
     $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';

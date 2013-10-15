@@ -20,16 +20,17 @@ class PHPCtags
     );
 
     private $mParser;
-
-    private $mStructs;
-
+    private $mLines;
     private $mOptions;
+    private $tagdata;
+    private $filecount;
 
     public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
-        $this->mStructs = array();
+        $this->mLines = array();
         $this->mOptions = $options;
+        $this->filecount = 0;
     }
 
     public function setMFile($file)
@@ -250,10 +251,10 @@ class PHPCtags
         return $structs;
     }
 
-    private function render()
+    private function render($structure)
     {
         $str = '';
-        foreach ($this->mStructs as $struct) {
+        foreach ($structure as $struct) {
             $file = $struct['file'];
 
             if (!isset($files[$file]))
@@ -360,6 +361,17 @@ class PHPCtags
         // remove the last line ending
         $str = trim($str);
 
+        return $str;
+    }
+
+    private function full_render() {
+        // Files will have been rendered already, just join and export.
+
+        $str = '';
+        foreach($this->mLines as $file => $data) {
+          $str .= $data;
+        }
+
         // sort the result as instructed
         if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
             $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
@@ -378,7 +390,7 @@ class PHPCtags
             $this->process($file);
         }
 
-        return $this->render();
+        return $this->full_render();
     }
 
     private function process($file)
@@ -404,27 +416,53 @@ class PHPCtags
                 }
 
                 try {
-                    $this->setMFile((string) $filename);
-                    $this->mStructs = array_merge(
-                        $this->mStructs,
-                        $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
-                    );
+                    $this->process_single_file($filename);
                 } catch(Exception $e) {
                     echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
                 }
             }
         } else {
             try {
-                $this->setMFile($file);
-                $this->mStructs = array_merge(
-                    $this->mStructs,
-                    $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
-                );
+                    $this->process_single_file($filename);
             } catch(Exception $e) {
                 echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
             }
         }
     }
+
+    private function process_single_file($filename)
+    {
+        if ($this->mOptions['v'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+            echo " ".$this->filecount." files".PHP_EOL;
+        }
+        $this->filecount++;
+
+        $startfile = microtime(true);
+
+        $this->setMFile((string) $filename);
+        $file = file_get_contents($this->mFile);
+        $md5 = md5($file);
+        if (isset($this->tagdata[$this->mFile][$md5])) {
+            // The file is the same as the previous time we analyzed and saved.
+            $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
+            if ($this->mOptions['v']) {
+                echo ".";
+            }
+            return;
+        }
+
+        $struct = $this->struct($this->mParser->parse($file), TRUE);
+        $finishfile = microtime(true);
+        $this->mLines[$this->mFile] = $this->render($struct);
+        $finishmerge = microtime(true);
+        $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
+        if ($this->mOptions['debug']) {
+            echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile.PHP_EOL;
+        } else if ($this->mOptions['v']) {
+            echo "U";
+        }
+    }
+
 }
 
 class PHPCtagsException extends Exception {
