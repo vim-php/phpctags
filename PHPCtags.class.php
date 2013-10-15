@@ -398,7 +398,7 @@ class PHPCtags
         // Save all tag information to a file for faster updates if a cache file was specified.
         if (isset($this->cachefile)) {
             file_put_contents($this->cachefile, serialize($this->tagdata));
-            if ($this->mOptions['verbose']) {
+            if ($this->mOptions['v']) {
                 echo "Saved cache file.\n";
             }
         }
@@ -463,7 +463,7 @@ class PHPCtags
 
     private function process_single_file($filename)
     {
-        if (!isset($this->mOptions['debug']) && $this->mOptions['verbose'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+        if ($this->mOptions['v'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
             echo " ".$this->filecount." files\n";
         }
         $this->filecount++;
@@ -476,9 +476,8 @@ class PHPCtags
         if (isset($this->tagdata[$this->mFile][$md5])) {
             // The file is the same as the previous time we analyzed and saved.
             $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
-            if (isset($this->mOptions['debug'])) {
-                echo "Cached: (".$this->filecount.") ".$this->mFile."\n";
-            } else if ($this->mOptions['verbose']) {
+
+            if ($this->mOptions['v']) {
                 echo ".";
             }
             return;
@@ -489,9 +488,10 @@ class PHPCtags
         $this->mLines[$this->mFile] = $this->render($struct);
         $finishmerge = microtime(true);
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
-        if (isset($this->mOptions['debug'])) {
-            echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.") ".$this->mFile."\n";
-        } else if ($this->mOptions['verbose']) {
+
+        if ($this->mOptions['debug']) {
+            echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile."\n";
+        } else if ($this->mOptions['v']) {
             echo "U";
         }
     }
