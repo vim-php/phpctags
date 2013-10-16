@@ -429,7 +429,9 @@ class PHPCtags
                 )
             );
 
-            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+            // File list includes default php extensions plug the Drupal extra extensions.
+            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps', '.module',
+                                '.inc', '.install', '.test', '.profile', '.theme', '.txt', '.js', '.css');
 
             foreach ($iterator as $filename) {
                 if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
