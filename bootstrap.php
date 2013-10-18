@@ -29,7 +29,9 @@ $options = getopt('aC:f:Nno:RuvV', array(
     'recurse::',
     'sort::',
     'version',
+    'extensions:',
     'memory::',
+    'verbose'
 ));
 
 $options_info = <<<'EOF'
@@ -56,6 +58,8 @@ Usage: phpctags [options] [file(s)]
        Repect PHP's error level configuration.
   --exclude=pattern
       Exclude files and directories matching 'pattern'.
+  --extensions=string
+      Process the file extensions. ['.php .php3 .php4 .php5 .phps'].
   --excmd=number|pattern|mix
        Uses the specified type of EX command to locate tags [mix].
   --fields=[+|-]flags
@@ -71,6 +75,8 @@ Usage: phpctags [options] [file(s)]
        Recurse into directories supplied on command line [no].
   --sort=[yes|no|foldcase]
        Should tags be sorted (optionally ignoring case) [yes]?.
+  --verbose
+       Display more output about progress.
   --version
        Print version identifier to standard output.
 EOF;
@@ -138,6 +144,10 @@ if (isset($options['N']) && !isset($options['n'])) {
     $options['excmd'] = 'pattern';
 }
 
+if (isset($options['v']) || isset($options['verbose']))
+    $options['verbose'] = true;
+else
+    $options['verbose'] = false;
 if (!isset($options['excmd']))
     $options['excmd'] = 'pattern';
 if (!isset($options['format']))

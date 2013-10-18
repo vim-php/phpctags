@@ -19,6 +19,9 @@ class PHPCtags
         'n' => 'namespace',
     );
 
+    /** @var array The extensions that will be indexed */
+    protected $mExtensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
     private $mParser;
 
     private $mLines;
@@ -37,6 +40,11 @@ class PHPCtags
         $this->mLines = array();
         $this->mOptions = $options;
         $this->filecount = 0;
+
+        // If a non default list of extensions was supplied, apply it.
+        if (isset($options['extensions'])) {
+            $this->mExtensions = explode(' ', $options['extensions']);
+        }
     }
 
     public function setMFile($file)
@@ -390,7 +398,7 @@ class PHPCtags
         // Save all tag information to a file for faster updates if a cache file was specified.
         if (isset($this->cachefile)) {
             file_put_contents($this->cachefile, serialize($this->tagdata));
-            if ($this->mOptions['v']) {
+            if ($this->mOptions['verbose']) {
                 echo "Saved cache file.\n";
             }
         }
@@ -414,7 +422,7 @@ class PHPCtags
     {
         // Load the tag md5 data to skip unchanged files.
         if (!isset($this->tagdata) && isset($this->cachefile) && file_exists($this->cachefile)) {
-            if ($this->mOptions['v']) {
+            if ($this->mOptions['verbose']) {
                 echo "Loaded cache file.\n";
             }
             $this->tagdata = unserialize(file_get_contents($this->cachefile));
@@ -429,12 +437,8 @@ class PHPCtags
                 )
             );
 
-            // File list includes default php extensions plug the Drupal extra extensions.
-            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps', '.module',
-                                '.inc', '.install', '.test', '.profile', '.theme', '.txt', '.js', '.css');
-
             foreach ($iterator as $filename) {
-                if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+                if (!in_array(substr($filename, strrpos($filename, '.')), $this->mExtensions)) {
                     continue;
                 }
 
@@ -459,7 +463,7 @@ class PHPCtags
 
     private function process_single_file($filename)
     {
-        if ($this->mOptions['v'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+        if (!isset($this->mOptions['debug']) && $this->mOptions['verbose'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
             echo " ".$this->filecount." files\n";
         }
         $this->filecount++;
@@ -472,7 +476,9 @@ class PHPCtags
         if (isset($this->tagdata[$this->mFile][$md5])) {
             // The file is the same as the previous time we analyzed and saved.
             $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
-            if ($this->mOptions['v']) {
+            if (isset($this->mOptions['debug'])) {
+                echo "Cached: (".$this->filecount.") ".$this->mFile."\n";
+            } else if ($this->mOptions['verbose']) {
                 echo ".";
             }
             return;
@@ -483,9 +489,9 @@ class PHPCtags
         $this->mLines[$this->mFile] = $this->render($struct);
         $finishmerge = microtime(true);
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
-        if ($this->mOptions['debug']) {
-            echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile."\n";
-        } else if ($this->mOptions['v']) {
+        if (isset($this->mOptions['debug'])) {
+            echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.") ".$this->mFile."\n";
+        } else if ($this->mOptions['verbose']) {
             echo "U";
         }
     }
