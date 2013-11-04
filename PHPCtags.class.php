@@ -390,17 +390,6 @@ class PHPCtags
 
         $str = '';
         foreach($this->mLines as $file => $data) {
-          $str .= $data."\n";
-        }
-
-        return $str;
-    }
-
-    private function full_render() {
-        // Files will have been rendered already, just join and export.
-
-        $str = '';
-        foreach($this->mLines as $file => $data) {
           $str .= $data;
         }
 
@@ -469,7 +458,7 @@ class PHPCtags
                     continue;
                 }
 
-                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
+                if ($this->isExcludedFile($filename)) {
                     continue;
                 }
 
@@ -523,6 +512,26 @@ class PHPCtags
         }
     }
 
+    private function isExcludedFile($filename)
+    {
+        if (!isset($this->mOptions['exclude'])) {
+            return false;
+        }
+
+        if (is_string($this->mOptions['exclude'])) {
+            return false !== strpos($filename, $this->mOptions['exclude']);
+        }
+
+        if (is_array($this->mOptions['exclude'])) {
+            foreach ($this->mOptions['exclude'] as $excludePattern) {
+                if (false !== strpos($filename, $excludePattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 class PHPCtagsException extends Exception {
