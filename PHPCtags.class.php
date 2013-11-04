@@ -390,7 +390,7 @@ class PHPCtags
 
         $str = '';
         foreach($this->mLines as $file => $data) {
-          $str .= $data."\n";
+          $str .= $data;
         }
 
         // sort the result as instructed
@@ -458,7 +458,7 @@ class PHPCtags
                     continue;
                 }
 
-                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
+                if ($this->isExcludedFile($filename)) {
                     continue;
                 }
 
@@ -506,6 +506,26 @@ class PHPCtags
         }
     }
 
+    private function isExcludedFile($filename)
+    {
+        if (!isset($this->mOptions['exclude'])) {
+            return false;
+        }
+
+        if (is_string($this->mOptions['exclude'])) {
+            return false !== strpos($filename, $this->mOptions['exclude']);
+        }
+
+        if (is_array($this->mOptions['exclude'])) {
+            foreach ($this->mOptions['exclude'] as $excludePattern) {
+                if (false !== strpos($filename, $excludePattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 class PHPCtagsException extends Exception {
@@ -523,4 +543,4 @@ class ReadableRecursiveDirectoryIterator extends RecursiveDirectoryIterator {
             return new RecursiveArrayIterator(array());
         }
     }
-} 
+}
