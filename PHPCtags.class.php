@@ -271,7 +271,10 @@ class PHPCtags
             if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
-                $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
+                $line = rtrim($lines[$struct['line'] - 1], "\n");
+                $line = str_replace('\\', '\\\\\\', $line);
+                $line = preg_replace('|(?<!\\\\)/|', '\/', $line);
+                $str .= "\t" . "/^" . $line . "$/";
             }
 
             if ($this->mOptions['format'] == 1) {
