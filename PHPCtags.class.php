@@ -394,6 +394,8 @@ class PHPCtags
 
     public function export()
     {
+        $start = microtime(true);
+
         if (empty($this->mFiles)) {
             throw new PHPCtagsException('No File specified.');
         }
@@ -402,17 +404,25 @@ class PHPCtags
             $this->process($file);
         }
 
-        return $this->full_render();
+        $content = $this->full_render();
+
+        $end = microtime(true);
+
+        if ($this->mOptions['V']) {
+            echo "It tooks ".($end-$start)." seconds.\n";
+        }
+
+        return $content;
     }
 
     private function process($file)
     {
         // Load the tag md5 data to skip unchanged files.
-        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists($this->cachefile)) {
+        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists(realpath($this->cachefile))) {
             if ($this->mOptions['v']) {
                 echo "Loaded cache file.".PHP_EOL;
             }
-            $this->tagdata = unserialize(file_get_contents($this->cachefile));
+            $this->tagdata = unserialize(file_get_contents(realpath($this->cachefile)));
         }
 
         if (is_dir($file) && isset($this->mOptions['R'])) {
@@ -438,14 +448,14 @@ class PHPCtags
                 try {
                     $this->process_single_file($filename);
                 } catch(Exception $e) {
-                    echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                    echo "\nPHPParser: {$e->getMessage()} - {$filename}\n";
                 }
             }
         } else {
             try {
                     $this->process_single_file($filename);
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
+                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
             }
         }
     }
@@ -457,24 +467,20 @@ class PHPCtags
         }
         $this->filecount++;
 
-        $startfile = microtime(true);
-
         $this->setMFile((string) $filename);
         $file = file_get_contents($this->mFile);
         $md5 = md5($file);
         if (isset($this->tagdata[$this->mFile][$md5])) {
             // The file is the same as the previous time we analyzed and saved.
             $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
-            if ($this->mOptions['v']) {
+            if ($this->mOptions['V']) {
                 echo ".";
             }
             return;
         }
 
         $struct = $this->struct($this->mParser->parse($file), TRUE);
-        $finishfile = microtime(true);
         $this->mLines[$this->mFile] = $this->render($struct);
-        $finishmerge = microtime(true);
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
         if ($this->mOptions['debug']) {
             echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile.PHP_EOL;
@@ -487,6 +493,6 @@ class PHPCtags
 
 class PHPCtagsException extends Exception {
     public function __toString() {
-        return "PHPCtags: {$this->message}\n";
+        return "\nPHPCtags: {$this->message}\n";
     }
 }
