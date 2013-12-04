@@ -198,6 +198,21 @@ if (isset($options['R']) && empty($argv)) {
     $argv[] = getcwd();
 }
 
+// write to a specified file
+if (isset($options['f']) && $options['f'] !== '-') {
+    $tagfile_name = $options['f'];
+    $append_mode = isset($options['a']) ? 'a' : 'w';
+// write to stdout only when instructed
+} else if (isset($options['f']) && $options['f'] === '-') {
+    $tagfile_name = 'php://stdout';
+    $append_mode = 'w';
+// write to file 'tags' by default
+} else {
+    $options['f'] = 'tags';
+    $tagfile_name = 'tags';
+    $append_mode = isset($options['a']) ? 'a' : 'w';
+}
+
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
@@ -206,16 +221,8 @@ try {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
 }
 
-// write to a specified file
-if (isset($options['f']) && $options['f'] !== '-') {
-    $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
-// write to stdout only when instructed
-} else if (isset($options['f']) && $options['f'] === '-') {
-    $tagfile = fopen('php://stdout', 'w');
-// write to file 'tags' by default
-} else {
-    $tagfile = fopen('tags', isset($options['a']) ? 'a' : 'w');
-}
+// write to tag file
+$tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
 
 $mode = ($options['sort'] == 'yes' ? 1 : ($options['sort'] == 'foldcase' ? 2 : 0));
 $tagline = <<<EOF

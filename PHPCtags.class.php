@@ -25,11 +25,22 @@ class PHPCtags
 
     private $mOptions;
 
+    private $mTagsDir;
+
     public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
         $this->mStructs = array();
         $this->mOptions = $options;
+        $this->setMTagsDir();
+    }
+
+    public function setMTagsDir()
+    {
+        if($this->mOptions['f'] === '-')
+            $this->mTagsDir = getcwd();
+        else
+            $this->mTagsDir = dirname(realpath($this->mOptions['f']));
     }
 
     public function setMFile($file)
@@ -102,6 +113,18 @@ class PHPCtags
     private static function helperSortByLine($a, $b)
     {
         return $a['line'] > $b['line'] ? 1 : 0;
+    }
+
+    private static function relativePath($from, $to, $ps = DIRECTORY_SEPARATOR)
+    {
+        $arFrom = explode($ps, rtrim($from, $ps));
+        $arTo = explode($ps, rtrim($to, $ps));
+        while(count($arFrom) && count($arTo) && ($arFrom[0] == $arTo[0]))
+        {
+            array_shift($arFrom);
+            array_shift($arTo);
+        }
+        return str_pad("", count($arFrom) * 3, '..'.$ps).implode($ps, $arTo);
     }
 
     private function struct($node, $reset=FALSE, $parent=array())
@@ -230,6 +253,7 @@ class PHPCtags
         if (!empty($kind) && !empty($name) && !empty($line)) {
             $structs[] = array(
                 'file' => $this->mFile,
+                'rfile' => self::relativePath($this->mTagsDir, dirname($this->mFile)) . basename($this->mFile),
                 'kind' => $kind,
                 'name' => $name,
                 'extends' => $extends,
@@ -266,7 +290,7 @@ class PHPCtags
 
             $str .= $struct['name'];
 
-            $str .= "\t" . $file;
+            $str .= "\t" . $struct['rfile'];
 
             if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
