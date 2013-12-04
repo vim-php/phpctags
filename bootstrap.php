@@ -222,7 +222,7 @@ try {
 }
 
 // write to tag file
-$tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');
+$tagfile = fopen($tagfile_name, $append_mode);
 
 $mode = ($options['sort'] == 'yes' ? 1 : ($options['sort'] == 'foldcase' ? 2 : 0));
 $tagline = <<<EOF
