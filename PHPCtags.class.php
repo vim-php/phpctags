@@ -291,7 +291,7 @@ class PHPCtags
         if (!empty($kind) && !empty($name) && !empty($line)) {
             $structs[] = array(
                 'file' => $this->mFile,
-                'rfile' => self::relativePath($this->mTagsDir, dirname($this->mFile)) . basename($this->mFile),
+                'rfile' => self::relativePath($this->mTagsDir, dirname($this->mFile)).DIRECTORY_SEPARATOR.basename($this->mFile),
                 'kind' => $kind,
                 'name' => $name,
                 'extends' => $extends,
