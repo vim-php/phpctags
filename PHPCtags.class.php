@@ -33,6 +33,8 @@ class PHPCtags
         $this->mStructs = array();
         $this->mOptions = $options;
         $this->setMTagsDir();
+        echo $this->mOptions['f']."|";
+        echo $this->mTagsDir."|";
     }
 
     public function setMTagsDir()
@@ -40,7 +42,7 @@ class PHPCtags
         if($this->mOptions['f'] === '-')
             $this->mTagsDir = getcwd();
         else
-            $this->mTagsDir = dirname(realpath($this->mOptions['f']));
+            $this->mTagsDir = dirname(self::absolutePath($this->mOptions['f']));
     }
 
     public function setMFile($file)
@@ -115,16 +117,54 @@ class PHPCtags
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
-    private static function relativePath($from, $to, $ps = DIRECTORY_SEPARATOR)
+    private static function relativePath($from, $to)
     {
-        $arFrom = explode($ps, rtrim($from, $ps));
-        $arTo = explode($ps, rtrim($to, $ps));
-        while(count($arFrom) && count($arTo) && ($arFrom[0] == $arTo[0]))
+        $fromPath = self::absolutePath($from);
+        $toPath = self::absolutePath($to);
+
+        $fromPathParts = explode(DIRECTORY_SEPARATOR, rtrim($fromPath, DIRECTORY_SEPARATOR));
+        $toPathParts = explode(DIRECTORY_SEPARATOR, rtrim($toPath, DIRECTORY_SEPARATOR));
+        while(count($fromPathParts) && count($toPathParts) && ($fromPathParts[0] == $toPathParts[0]))
         {
-            array_shift($arFrom);
-            array_shift($arTo);
+            array_shift($fromPathParts);
+            array_shift($toPathParts);
         }
-        return str_pad("", count($arFrom) * 3, '..'.$ps).implode($ps, $arTo);
+        return str_pad("", count($fromPathParts)*3, '..'.DIRECTORY_SEPARATOR).implode(DIRECTORY_SEPARATOR, $toPathParts);
+    }
+
+    private static function absolutePath($path)
+    {
+        $isEmptyPath    = (strlen($path) == 0);
+        $isRelativePath = ($path{0} != '/');
+        $isWindowsPath  = !(strpos($path, ':') === false);
+
+        if (($isEmptyPath || $isRelativePath) && !$isWindowsPath)
+            $path= getcwd().DIRECTORY_SEPARATOR.$path;
+
+        // resolve path parts (single dot, double dot and double delimiters)
+        $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+        $pathParts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $absolutePathParts = array();
+        foreach ($pathParts as $part) {
+            if ($part == '.')
+                continue;
+
+            if ($part == '..') {
+                array_pop($absolutePathParts);
+            } else {
+                $absolutePathParts[] = $part;
+            }
+        }
+        $path = implode(DIRECTORY_SEPARATOR, $absolutePathParts);
+
+        // resolve any symlinks
+        if (file_exists($path) && linkinfo($path)>0)
+            $path = readlink($path);
+
+        // put initial separator that could have been lost
+        $path= (!$isWindowsPath ? '/'.$path : $path);
+
+        return $path;
     }
 
     private function struct($node, $reset=FALSE, $parent=array())
