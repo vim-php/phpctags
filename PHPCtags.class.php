@@ -33,8 +33,6 @@ class PHPCtags
         $this->mStructs = array();
         $this->mOptions = $options;
         $this->setMTagsDir();
-        echo $this->mOptions['f']."|";
-        echo $this->mTagsDir."|";
     }
 
     public function setMTagsDir()
