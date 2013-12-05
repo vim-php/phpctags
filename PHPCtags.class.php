@@ -363,8 +363,8 @@ class PHPCtags
             $str .= "\n";
         }
 
-        // remove the last line ending
-        $str = trim($str);
+        // remove the last line ending and carriage return
+        $str = trim(str_replace("\x0D", "", $str));
 
         return $str;
     }
@@ -374,7 +374,7 @@ class PHPCtags
 
         $str = '';
         foreach($this->mLines as $file => $data) {
-          $str .= $data;
+          $str .= $data.PHP_EOL;
         }
 
         // sort the result as instructed
@@ -389,6 +389,9 @@ class PHPCtags
                 echo "Saved cache file.".PHP_EOL;
             }
         }
+
+        $str = trim($str);
+
         return $str;
     }
 
