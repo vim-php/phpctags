@@ -467,9 +467,9 @@ class PHPCtags
             }
         } else {
             try {
-                    $this->process_single_file($filename);
+                $this->process_single_file($file);
             } catch(Exception $e) {
-                echo "\nPHPParser: {$e->getMessage()} - {$filename}\n";
+                echo "\nPHPParser: {$e->getMessage()} - {$file}\n";
             }
         }
     }
