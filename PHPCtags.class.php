@@ -376,8 +376,19 @@ class PHPCtags
             $str .= "\n";
         }
 
-        // remove the last line ending
-        $str = trim($str);
+        // remove the last line ending and carriage return
+        $str = trim(str_replace("\x0D", "", $str));
+
+        return $str;
+    }
+
+    private function full_render() {
+        // Files will have been rendered already, just join and export.
+
+        $str = '';
+        foreach($this->mLines as $file => $data) {
+          $str .= $data."\n";
+        }
 
         return $str;
     }
@@ -398,15 +409,20 @@ class PHPCtags
         // Save all tag information to a file for faster updates if a cache file was specified.
         if (isset($this->cachefile)) {
             file_put_contents($this->cachefile, serialize($this->tagdata));
-            if ($this->mOptions['verbose']) {
-                echo "Saved cache file.\n";
+            if ($this->mOptions['V']) {
+                echo "\nSaved cache file.\n";
             }
         }
+
+        $str = trim($str);
+
         return $str;
     }
 
     public function export()
     {
+        $start = microtime(true);
+
         if (empty($this->mFiles)) {
             throw new PHPCtagsException('No File specified.');
         }
@@ -415,17 +431,25 @@ class PHPCtags
             $this->process($file);
         }
 
-        return $this->full_render();
+        $content = $this->full_render();
+
+        $end = microtime(true);
+
+        if ($this->mOptions['V']) {
+            echo "It tooks ".($end-$start)." seconds.\n";
+        }
+
+        return $content;
     }
 
     private function process($file)
     {
         // Load the tag md5 data to skip unchanged files.
-        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists($this->cachefile)) {
-            if ($this->mOptions['verbose']) {
+        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists(realpath($this->cachefile))) {
+            if ($this->mOptions['V']) {
                 echo "Loaded cache file.\n";
             }
-            $this->tagdata = unserialize(file_get_contents($this->cachefile));
+            $this->tagdata = unserialize(file_get_contents(realpath($this->cachefile)));
         }
 
         if (is_dir($file) && isset($this->mOptions['R'])) {
@@ -449,21 +473,21 @@ class PHPCtags
                 try {
                     $this->process_single_file($filename);
                 } catch(Exception $e) {
-                    echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                    echo "\nPHPParser: {$e->getMessage()} - {$filename}\n";
                 }
             }
         } else {
             try {
-                    $this->process_single_file($filename);
+                $this->process_single_file($file);
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                echo "\nPHPParser: {$e->getMessage()} - {$file}\n";
             }
         }
     }
 
     private function process_single_file($filename)
     {
-        if (!isset($this->mOptions['debug']) && $this->mOptions['verbose'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+        if ($this->mOptions['V'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
             echo " ".$this->filecount." files\n";
         }
         $this->filecount++;
@@ -478,7 +502,7 @@ class PHPCtags
             $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
             if (isset($this->mOptions['debug'])) {
                 echo "Cached: (".$this->filecount.") ".$this->mFile."\n";
-            } else if ($this->mOptions['verbose']) {
+            } else if ($this->mOptions['V']) {
                 echo ".";
             }
             return;
@@ -491,7 +515,7 @@ class PHPCtags
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
         if (isset($this->mOptions['debug'])) {
             echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.") ".$this->mFile."\n";
-        } else if ($this->mOptions['verbose']) {
+        } else if ($this->mOptions['V']) {
             echo "U";
         }
     }
@@ -500,6 +524,6 @@ class PHPCtags
 
 class PHPCtagsException extends Exception {
     public function __toString() {
-        return "PHPCtags: {$this->message}\n";
+        return "\nPHPCtags: {$this->message}\n";
     }
 }
