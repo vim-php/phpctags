@@ -32,7 +32,6 @@ $options = getopt('aC:f:Nno:RuV', array(
     'version',
     'extensions:',
     'memory::',
-    'verbose'
 ));
 
 $options_info = <<<'EOF'
