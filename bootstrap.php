@@ -229,6 +229,8 @@ if (isset($options['f']) && $options['f'] !== '-') {
 }
 
 $mode = ($options['sort'] == 'yes' ? 1 : ($options['sort'] == 'foldcase' ? 2 : 0));
+
+if (!isset($options['a'])) {
 $tagline = <<<EOF
 !_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;" to lines/
 !_TAG_FILE_SORTED\t{$mode}\t/0=unsorted, 1=sorted, 2=foldcase/
@@ -237,6 +239,7 @@ $tagline = <<<EOF
 !_TAG_PROGRAM_URL\thttps://github.com/techlivezheng/phpctags\t/official site/
 !_TAG_PROGRAM_VERSION\t${version}\t//\n
 EOF;
+}
 
 fwrite($tagfile, $tagline.$result);
 fclose($tagfile);
