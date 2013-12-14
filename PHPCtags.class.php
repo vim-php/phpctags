@@ -240,6 +240,10 @@ class PHPCtags
         foreach ($this->mStructs as $struct) {
             $file = $struct['file'];
 
+            if (!in_array($struct['kind'], $this->mOptions['kinds'])) {
+                continue;
+            }
+
             if (!isset($files[$file]))
                 $files[$file] = file($file);
 

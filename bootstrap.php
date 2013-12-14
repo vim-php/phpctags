@@ -24,6 +24,7 @@ $options = getopt('af:Nno:RuV', array(
     'exclude:',
     'excmd::',
     'fields::',
+    'kinds::',
     'format::',
     'help',
     'recurse::',
@@ -57,7 +58,9 @@ Usage: phpctags [options] [file(s)]
   --excmd=number|pattern|mix
        Uses the specified type of EX command to locate tags [mix].
   --fields=[+|-]flags
-      Include selected extension fields (flags: "afmikKlnsStz") [fks].
+       Include selected extension fields (flags: "afmikKlnsStz") [fks].
+  --kinds=[+|-]flags
+       Enable/disable tag kinds [cmfpvdi]
   --format=level
        Force output of specified tag file format [2].
   --help
@@ -141,11 +144,19 @@ if (!isset($options['format']))
     $options['format'] = 2;
 if (!isset($options['memory']))
     $options['memory'] = '128M';
+
 if (!isset($options['fields'])) {
     $options['fields'] = array('n', 'k', 's', 'a');
 } else {
     $options['fields'] = str_split($options['fields']);
 }
+
+if (!isset($options['kinds'])) {
+    $options['kinds'] = array('c', 'm', 'f', 'p', 'd', 'v', 'i');
+} else {
+    $options['kinds'] = str_split($options['kinds']);
+}
+
 
 // handle -u or --sort options
 if (isset($options['sort'])) {
