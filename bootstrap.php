@@ -146,7 +146,7 @@ if (!isset($options['memory']))
     $options['memory'] = '128M';
 
 if (!isset($options['fields'])) {
-    $options['fields'] = array('n', 'k', 's', 'a');
+    $options['fields'] = array('n', 'k', 's', 'a','i');
 } else {
     $options['fields'] = str_split($options['fields']);
 }

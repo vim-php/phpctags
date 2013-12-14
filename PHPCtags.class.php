@@ -1,13 +1,14 @@
 <?php
 class PHPCtags
 {
-    const VERSION = '0.4.2';
+    const VERSION = '0.5.1';
 
     private $mFile;
 
     private $mFiles;
 
     private static $mKinds = array(
+        't' => 'trait',
         'c' => 'class',
         'm' => 'method',
         'f' => 'function',
@@ -15,6 +16,7 @@ class PHPCtags
         'd' => 'constant',
         'v' => 'variable',
         'i' => 'interface',
+        'n' => 'namespace',
     );
 
     private $mParser;
@@ -111,7 +113,8 @@ class PHPCtags
             $structs = array();
         }
 
-        $kind = $name = $line = $access = '';
+        $kind = $name = $line = $access = $extends = '';
+        $implements = array();
 
         if (!empty($parent)) array_push($scope, $parent);
 
@@ -122,6 +125,8 @@ class PHPCtags
         } elseif ($node instanceof PHPParser_Node_Stmt_Class) {
             $kind = 'c';
             $name = $node->name;
+            $extends = $node->extends;
+            $implements = $node->implements;
             $line = $node->getLine();
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('class' => $name));
@@ -181,10 +186,19 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('interface' => $name));
             }
-        } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
-            //@todo
+        } elseif ($node instanceof PHPParser_Node_Stmt_Trait ) {
+            $kind = 't';
+            $name = $node->name;
+            $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode);
+                $this->struct($subNode, FALSE, array('trait' => $name));
+            }
+        } elseif ($node instanceof PHPParser_Node_Stmt_Namespace) {
+            $kind = 'n';
+            $name = $node->name;
+            $line = $node->getLine();
+            foreach ($node as $subNode) {
+                $this->struct($subNode, FALSE, array('namespace' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
             if (is_string($node->var->name)) {
@@ -218,6 +232,8 @@ class PHPCtags
                 'file' => $this->mFile,
                 'kind' => $kind,
                 'name' => $name,
+                'extends' => $extends,
+                'implements' => $implements,
                 'line' => $line,
                 'scope' => $scope,
                 'access' => $access,
@@ -287,19 +303,54 @@ class PHPCtags
 
             #field=s
             if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
+                // $scope, $type, $name are current scope variables
                 $scope = array_pop($struct['scope']);
                 list($type, $name) = each($scope);
                 switch ($type) {
+                    case 'class':
+                        // n_* stuffs are namespace related scope variables
+                        // current > class > namespace
+                        $n_scope = array_pop($struct['scope']);
+                        if(!empty($n_scope)) {
+                            list($n_type, $n_name) = each($n_scope);
+                            $s_str = 'class:' . $n_name . '\\' . $name;
+                        } else {
+                            $s_str = 'class:' . $name;
+                        }
+                        break;
                     case 'method':
-                        $scope = array_pop($struct['scope']);
-                        list($p_type, $p_name) = each($scope);
-                        $scope = 'method:' . $p_name . '::' . $name;
+                        // c_* stuffs are class related scope variables
+                        // current > method > class > namespace
+                        $c_scope = array_pop($struct['scope']);
+                        list($c_type, $c_name) = each($c_scope);
+                        $n_scope = array_pop($struct['scope']);
+                        if(!empty($n_scope)) {
+                            list($n_type, $n_name) = each($n_scope);
+                            $s_str = 'method:' . $n_name . '\\' . $c_name . '::' . $name;
+                        } else {
+                            $s_str = 'method:' . $c_name . '::' . $name;
+                        }
                         break;
                     default:
-                        $scope = $type . ':' . $name;
+                        $s_str = $type . ':' . $name;
                         break;
                 }
-                $str .= "\t" . $scope;
+                $str .= "\t" . $s_str;
+            }
+
+            #field=i
+            if(in_array('i', $this->mOptions['fields'])) {
+                $inherits = array();
+                if(!empty($struct['extends'])) {
+                    $inherits[] = $struct['extends']->toString();
+                }
+                if(!empty($struct['implements'])) {
+                    foreach($struct['implements'] as $interface) {
+                        $inherits[] = $interface->toString();
+                    }
+                }
+                if(!empty($inherits))
+                    $str .= "\t" . 'inherits:' . implode(',', $inherits);
             }
 
             #field=a

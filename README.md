@@ -4,7 +4,7 @@ phpctags
 An enhanced php [ctags](http://ctags.sourceforge.net/) index file generator
 compatible with http://ctags.sourceforge.net/FORMAT.
 
-Using [PHP_Parse](https://github.com/nikic/PHP-Parser) as PHP syntax parsing
+Using [PHP_Parser](https://github.com/nikic/PHP-Parser) as PHP syntax parsing
 backend, written in pure PHP. The generated ctags index file contains scope
 and access information about class's methods and properties.
 
@@ -25,9 +25,10 @@ should be easy though (Apologize for not being able to provide any help for
 this, I am really not a Windows guy), it also would be great if someone could
 provide a patch for this.
 
-Installation is simple, just run `make` in the root directory of the source,
-you will get a `phpctags` PHAR executable, add it to your `$PATH`, then you
-can invoke `phpcatgs` directly from anywhere.
+Installation is simple, make sure you have PHP's PHAR extension enabled, then
+just run `make` in the root directory of the source, you will get a `phpctags`
+PHAR executable, add it to your `$PATH`, then you can invoke `phpcatgs`
+directly from anywhere.
 
 See [phpctags on packagist](http://packagist.org/packages/techlivezheng/phpctags)
 for more details.

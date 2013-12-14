@@ -1,3 +1,20 @@
+Version 0.5.1
+-------------
+
+* Fix building compatiblity with PHP 5.3.*
+  thanks to grep-awesome@github
+
+Version 0.5
+-----------
+
+* Add trait support
+  thanks to Mark Wu
+* Add inherits support
+  thanks to Mark Wu
+* Add namespace support
+  thanks to Mark Wu
+* Add instruction to enable phar extension in README
+
 Version 0.4.2
 -------------
 
