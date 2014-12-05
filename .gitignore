@@ -2,4 +2,3 @@ tests/*.expect
 tests/*.result
 build/
 vendor/
-phpctags
