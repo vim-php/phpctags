@@ -274,7 +274,11 @@ class PHPCtags
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            $str .= $struct['name'];
+            if  ($struct['name'] instanceof PHPParser_Node_Expr_Variable ){
+                $str .= $struct['name']->name;
+            }else{
+                $str .= $struct['name'];
+            }
 
             $str .= "\t" . $file;
 
