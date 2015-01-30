@@ -207,6 +207,7 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('namespace' => $name));
             }
+            /*
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
             if (is_string($node->var->name)) {
                 $kind = 'v';
@@ -221,6 +222,7 @@ class PHPCtags
                 $name = $node->name;
                 $line = $node->getLine();
             }
+            */
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
                 case 'define':
