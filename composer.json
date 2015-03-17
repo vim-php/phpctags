@@ -7,6 +7,9 @@
         "php": ">=5.3",
         "nikic/php-parser": "*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "~4"
+    },
     "autoload": {
         "classmap": ["PHPCtags.class.php"]
     },
