@@ -49,7 +49,7 @@ EOS
             self::KIND_PROPERTY,
             5,
             'trait:TestTrait',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelTraitExample.php',
@@ -57,7 +57,7 @@ EOS
             self::KIND_PROPERTY,
             6,
             'trait:TestTrait',
-            'access:protected'
+            'protected'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelTraitExample.php',
@@ -65,7 +65,7 @@ EOS
             self::KIND_PROPERTY,
             7,
             'trait:TestTrait',
-            'access:private'
+            'private'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelTraitExample.php',
@@ -73,7 +73,7 @@ EOS
             self::KIND_METHOD,
             9,
             'trait:TestTrait',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelTraitExample.php',
@@ -81,7 +81,7 @@ EOS
             self::KIND_METHOD,
             13,
             'trait:TestTrait',
-            'access:protected'
+            'protected'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelTraitExample.php',
@@ -89,7 +89,7 @@ EOS
             self::KIND_METHOD,
             17,
             'trait:TestTrait',
-            'access:private'
+            'private'
         );
     }
 
@@ -139,7 +139,7 @@ EOS
             self::KIND_PROPERTY,
             7,
             'trait:Level1\Level2\TestTrait',
-            'access:private'
+            'private'
         );
         $this->assertTagsFileContainsTag(
             'MultiLevelNamespace.php',
@@ -147,7 +147,7 @@ EOS
             self::KIND_METHOD,
             9,
             'trait:Level1\Level2\TestTrait',
-            'access:public'
+            'public'
         );
     }
 }

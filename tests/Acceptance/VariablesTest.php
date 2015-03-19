@@ -113,4 +113,38 @@ EOS
             'method:TestClass::testMethod'
         );
     }
+
+    /**
+     * @test
+     */
+    public function itCreatesTagForVariablesInTryCatchBlocks()
+    {
+        $this->givenSourceFile('VariableInTryBlock.php', <<<'EOS'
+<?php
+try {
+    $ctags = new PHPCtags();
+    $result = $ctags->export($file, $options);
+} catch (Exception $e) {
+    die("phpctags: {$e->getMessage()}");
+}
+EOS
+        );
+
+        $this->runPHPCtags();
+
+        $this->assertTagsFileHeaderIsCorrect();
+        $this->assertNumberOfTagsInTagsFileIs(2);
+        $this->assertTagsFileContainsTag(
+            'VariableInTryBlock.php',
+            'ctags',
+            self::KIND_VARIABLE,
+            3
+        );
+        $this->assertTagsFileContainsTag(
+            'VariableInTryBlock.php',
+            'result',
+            self::KIND_VARIABLE,
+            4
+        );
+    }
 }

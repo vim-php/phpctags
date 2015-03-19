@@ -37,7 +37,7 @@ EOS
             self::KIND_PROPERTY,
             5,
             'interface:TestInterface',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'InterfaceExample.php',
@@ -45,7 +45,7 @@ EOS
             self::KIND_METHOD,
             7,
             'interface:TestInterface',
-            'access:public'
+            'public'
         );
     }
 
@@ -92,7 +92,7 @@ EOS
             self::KIND_PROPERTY,
             7,
             'interface:Level1\Level2\TestInterface',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'MultiLevelNamespace.php',
@@ -100,7 +100,7 @@ EOS
             self::KIND_METHOD,
             9,
             'interface:Level1\Level2\TestInterface',
-            'access:public'
+            'public'
         );
     }
 }

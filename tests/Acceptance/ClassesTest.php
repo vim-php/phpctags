@@ -49,7 +49,7 @@ EOS
             self::KIND_PROPERTY,
             5,
             'class:TestClass',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelClassExample.php',
@@ -57,7 +57,7 @@ EOS
             self::KIND_PROPERTY,
             6,
             'class:TestClass',
-            'access:protected'
+            'protected'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelClassExample.php',
@@ -65,7 +65,7 @@ EOS
             self::KIND_PROPERTY,
             7,
             'class:TestClass',
-            'access:private'
+            'private'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelClassExample.php',
@@ -73,7 +73,7 @@ EOS
             self::KIND_METHOD,
             9,
             'class:TestClass',
-            'access:public'
+            'public'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelClassExample.php',
@@ -81,7 +81,7 @@ EOS
             self::KIND_METHOD,
             13,
             'class:TestClass',
-            'access:protected'
+            'protected'
         );
         $this->assertTagsFileContainsTag(
             'TopLevelClassExample.php',
@@ -89,7 +89,7 @@ EOS
             self::KIND_METHOD,
             17,
             'class:TestClass',
-            'access:private'
+            'private'
         );
     }
 
@@ -139,7 +139,7 @@ EOS
             self::KIND_PROPERTY,
             7,
             'class:Level1\Level2\TestClass',
-            'access:private'
+            'private'
         );
         $this->assertTagsFileContainsTag(
             'MultiLevelNamespace.php',
@@ -147,7 +147,70 @@ EOS
             self::KIND_METHOD,
             9,
             'class:Level1\Level2\TestClass',
-            'access:public'
+            'public'
+        );
+    }
+
+    /**
+     * @test
+     * @group bugfix3
+     */
+    public function itTagsMagicMethods()
+    {
+        $this->givenSourceFile('DbConnectionUserDecorator.php', <<<'EOS'
+<?php
+class DbConnectionUserDecorator {
+    public function __set($key, $value) {
+        $this->conn->$key = $value;
+    }
+}
+EOS
+        );
+
+        $this->runPHPCtags();
+
+        $this->assertTagsFileHeaderIsCorrect();
+        $this->assertNumberOfTagsInTagsFileIs(2);
+        $this->assertTagsFileContainsTag(
+            'DbConnectionUserDecorator.php',
+            'DbConnectionUserDecorator',
+            self::KIND_CLASS,
+            2
+        );
+        $this->assertTagsFileContainsTag(
+            'DbConnectionUserDecorator.php',
+            '__set',
+            self::KIND_METHOD,
+            3,
+            'class:DbConnectionUserDecorator',
+            'public'
+        );
+    }
+
+    /**
+     * @test
+     * @group bugfix7
+     */
+    public function itTagsClassInsideConditional()
+    {
+        $this->givenSourceFile('MultiLevelNamespace.php', <<<'EOS'
+<?php
+if (!class_exists('MyClass')) {
+    class MyClass {
+    }
+}
+EOS
+        );
+
+        $this->runPHPCtags();
+
+        $this->assertTagsFileHeaderIsCorrect();
+        $this->assertNumberOfTagsInTagsFileIs(1);
+        $this->assertTagsFileContainsTag(
+            'MultiLevelNamespace.php',
+            'MyClass',
+            self::KIND_CLASS,
+            3
         );
     }
 }

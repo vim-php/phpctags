@@ -70,6 +70,27 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $patterns
+     *
+     * @return void
+     */
+    protected function runPHPCtagsWithExcludes(array $patterns)
+    {
+        $entryPoint = realpath(__DIR__ . '/../../bootstrap.php');
+
+        $excludes = implode(
+            ' ',
+            array_map(function ($pattern) {
+                return '--exclude=\'' . $pattern . '\'';
+            }, $patterns)
+        );
+
+        exec("php \"$entryPoint\" --recurse=yes -f - $excludes {$this->testDir}", $output);
+
+        $this->tagsFileContent = $output;
+    }
+
+    /**
      * @return void
      */
     protected function assertTagsFileHeaderIsCorrect()
@@ -125,6 +146,28 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
         );
     }
 
+
+    /**
+     * @param string $filename
+     *
+     * @return void
+     */
+    public function assertTagsFileContainsNoTagsFromFile($filename)
+    {
+        $filename = $this->testDir . DIRECTORY_SEPARATOR . $filename;
+
+        $tags = array_filter(
+            $this->tagsFileContent,
+            function ($line) use ($filename) {
+                $fields = explode("\t", $line);
+
+                return $fields[1] === $filename;
+            }
+        );
+
+        $this->assertEmpty($tags, "Tags for $filename were found in tag file.");
+    }
+
     /**
      * @return void
      */
@@ -175,7 +218,7 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
             self::KIND_NAMESPACE => 'namespace',
         );
 
-        if(!empty($define['access'])) {
+        if(!empty($access)) {
             $access = 'access:' . $access;
         }
 
