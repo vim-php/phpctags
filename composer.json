@@ -13,5 +13,10 @@
     "autoload": {
         "classmap": ["PHPCtags.class.php"]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\PHPCTags\\": "tests/"
+        }
+    },
     "bin": ["phpctags"]
 }

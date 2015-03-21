@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "988db57ebae6b5d299a579b68ce61a43",
+    "hash": "e84f804c8384112102d55543e0d08231",
     "packages": [
         {
             "name": "nikic/php-parser",
