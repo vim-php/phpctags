@@ -74,7 +74,7 @@ Acctural result has been dumped to '$acctural_result'
 EOF;
 
         try {
-            $this->assertEquals(md5($testcase_expect), md5($testcase_result), $msg);
+            $this->assertEquals($testcase_expect, $testcase_result, $msg);
         } catch (PHPUnit_Framework_ExpectationFailedException $e) {
             file_put_contents($expected_result, $testcase_expect);
             file_put_contents($acctural_result, $testcase_result);

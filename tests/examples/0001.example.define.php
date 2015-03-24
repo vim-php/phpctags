@@ -52,6 +52,13 @@ function e_0001_define()
             'access'=>'',
         ),
         array(
+            'name'=>'Trait_1',
+            'kind'=>'t',
+            'line'=> 25,
+            'scope'=>'',
+            'access'=>''
+        ),
+        array(
             'name'=>'Interface_1',
             'kind'=>'i',
             'line'=>'30',

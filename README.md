@@ -1,5 +1,6 @@
 phpctags
 ========
+[![Build Status](https://travis-ci.org/vim-php/phpctags.svg)](https://travis-ci.org/vim-php/phpctags)
 
 An enhanced php [ctags](http://ctags.sourceforge.net/) index file generator
 compatible with http://ctags.sourceforge.net/FORMAT.
