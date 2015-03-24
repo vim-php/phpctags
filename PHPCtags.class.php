@@ -421,7 +421,7 @@ class PHPCtags
                     $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
                 );
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
             }
         }
     }

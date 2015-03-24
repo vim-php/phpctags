@@ -9,6 +9,10 @@ final class TraitsTest extends AcceptanceTestCase
      */
     public function itCreatesTagForTopLevelTrait()
     {
+        if (version_compare('5.4.0', PHP_VERSION, 'gte')) {
+            $this->markTestSkipped('Traits were not introduced until 5.4');
+        }
+
         $this->givenSourceFile('TopLevelTraitExample.php', <<<'EOS'
 <?php
 
@@ -98,6 +102,10 @@ EOS
      */
     public function itAddsNamespacesToTraitTags()
     {
+        if (version_compare('5.4.0', PHP_VERSION, 'gte')) {
+            $this->markTestSkipped('Traits were not introduced until 5.4');
+        }
+
         $this->givenSourceFile('MultiLevelNamespace.php', <<<'EOS'
 <?php
 
