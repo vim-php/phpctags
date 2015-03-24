@@ -15,7 +15,7 @@ before_script:
 script:
     - vendor/bin/phpunit
 
-branches:
-  only:
-    - master
-    - develop
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 7
