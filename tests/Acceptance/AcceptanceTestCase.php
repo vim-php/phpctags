@@ -259,7 +259,7 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
     {
         $filename = $this->testDir . DIRECTORY_SEPARATOR . $filename;
         $line--;
-
-        return rtrim(file($filename)[$line], PHP_EOL);
+        $file = file($filename);
+        return rtrim($file[$line], PHP_EOL);
     }
 }
