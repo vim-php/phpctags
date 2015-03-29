@@ -113,7 +113,10 @@ class PHPCtags
             $structs = array();
         }
 
+        /*$node::PHPParser_Node_Stmt_Class  */
+        
         $kind = $name = $line = $access = $extends = '';
+        $return_type="";
         $implements = array();
 
         if (!empty($parent)) array_push($scope, $parent);
@@ -136,6 +139,10 @@ class PHPCtags
             $prop = $node->props[0];
             $name = $prop->name;
             $line = $prop->getLine();
+            if ( preg_match( "/@var[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
+                $return_type=$matches[1];
+            }
+
             $access = $this->getNodeAccess($node);
         } elseif ($node instanceof PHPParser_Node_Stmt_ClassConst) {
             $kind = 'd';
@@ -147,6 +154,9 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             $access = $this->getNodeAccess($node);
+            if ( preg_match( "/@return[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
+                $return_type=$matches[1];
+            }
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('method' => $name));
             }
@@ -154,16 +164,23 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode);
             }
+        } elseif ($node instanceof PHPParser_Node_Expr_LogicalOr ) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
+
         } elseif ($node instanceof PHPParser_Node_Stmt_Const) {
             $kind = 'd';
             $cons = $node->consts[0];
             $name = $cons->name;
             $line = $node->getLine();
         } elseif ($node instanceof PHPParser_Node_Stmt_Global) {
+            /*
             $kind = 'v';
             $prop = $node->vars[0];
             $name = $prop->name;
             $line = $node->getLine();
+            */
         } elseif ($node instanceof PHPParser_Node_Stmt_Static) {
             //@todo
         } elseif ($node instanceof PHPParser_Node_Stmt_Declare) {
@@ -200,6 +217,7 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('namespace' => $name));
             }
+            /*
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
             if (is_string($node->var->name)) {
                 $kind = 'v';
@@ -214,6 +232,7 @@ class PHPCtags
                 $name = $node->name;
                 $line = $node->getLine();
             }
+            */
         } elseif ($node instanceof PHPParser_Node_Expr_FuncCall) {
             switch ($node->name) {
                 case 'define':
@@ -237,6 +256,7 @@ class PHPCtags
                 'line' => $line,
                 'scope' => $scope,
                 'access' => $access,
+                'type' => $return_type,
             );
         }
 
@@ -264,7 +284,11 @@ class PHPCtags
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
 
-            $str .= $struct['name'];
+            if  ($struct['name'] instanceof PHPParser_Node_Expr_Variable ){
+                $str .= $struct['name']->name;
+            }else{
+                $str .= $struct['name'];
+            }
 
             $str .= "\t" . $file;
 
@@ -354,6 +378,11 @@ class PHPCtags
                 $str .= "\t" . "access:" . $struct['access'];
             }
 
+            #type
+            if ( !empty($struct['type'])) {
+                $str .= "\t" . "type:" . $struct['type'] ;
+            }
+
             $str .= "\n";
         }
 
@@ -416,9 +445,10 @@ class PHPCtags
         } else {
             try {
                 $this->setMFile($file);
+                $ret_tree= $this->mParser->parse(file_get_contents($this->mFile));
                 $this->mStructs = array_merge(
                     $this->mStructs,
-                    $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
+                    $this->struct($ret_tree, TRUE)
                 );
             } catch(Exception $e) {
                 echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
