@@ -271,7 +271,10 @@ class PHPCtags
             if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
-                $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
+                $line = rtrim($lines[$struct['line'] - 1], "\n");
+                $line = str_replace('\\', '\\\\\\', $line);
+                $line = preg_replace('|(?<!\\\\)/|', '\/', $line);
+                $str .= "\t" . "/^" . $line . "$/";
             }
 
             if ($this->mOptions['format'] == 1) {
@@ -399,7 +402,7 @@ class PHPCtags
                     continue;
                 }
 
-                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
+                if ($this->isExcludedFile($filename)) {
                     continue;
                 }
 
@@ -421,9 +424,30 @@ class PHPCtags
                     $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
                 );
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
             }
         }
+    }
+
+    private function isExcludedFile($filename)
+    {
+        if (!isset($this->mOptions['exclude'])) {
+            return false;
+        }
+
+        if (is_string($this->mOptions['exclude'])) {
+            return false !== strpos($filename, $this->mOptions['exclude']);
+        }
+
+        if (is_array($this->mOptions['exclude'])) {
+            foreach ($this->mOptions['exclude'] as $excludePattern) {
+                if (false !== strpos($filename, $excludePattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
