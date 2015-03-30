@@ -52,5 +52,5 @@ $phar->buildFromIterator(
 );
 
 $phar->setStub(
-    "#!/usr/bin/env php\n".$phar->createDefaultStub('bootstrap.php')
+    "#!/usr/bin/env php\n".$phar->createDefaultStub('phpctags')
 );

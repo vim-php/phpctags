@@ -2,7 +2,7 @@ source := README.md \
           ChangeLog.md \
           composer.json \
           composer.lock \
-          bootstrap.php \
+          phpctags \
           PHPCtags.class.php
 
 .PHONY: all
