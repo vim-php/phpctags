@@ -18,7 +18,7 @@ Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
 
-$options = getopt('af:Nno:RuV', array(
+$options = getopt('aC:f:Nno:RuV', array(
     'append::',
     'debug',
     'exclude:',
@@ -28,7 +28,9 @@ $options = getopt('af:Nno:RuV', array(
     'help',
     'recurse::',
     'sort::',
+    'verbose::',
     'version',
+    'extensions:',
     'memory::',
 ));
 
@@ -41,6 +43,8 @@ Usage: phpctags [options] [file(s)]
   -f <name>
        Write tags to specified file. Value of "-" writes tags to stdout
        ["tags"].
+  -C <name>
+       Use a cache file to store tags for faster updates.
   -n   Equivalent to --excmd=number.
   -N   Equivalent to --excmd=pattern.
   -o   Alternative for -f.
@@ -54,6 +58,8 @@ Usage: phpctags [options] [file(s)]
        Repect PHP's error level configuration.
   --exclude=pattern
       Exclude files and directories matching 'pattern'.
+  --extensions=string
+      Process the file extensions. ['.php .php3 .php4 .php5 .phps'].
   --excmd=number|pattern|mix
        Uses the specified type of EX command to locate tags [mix].
   --fields=[+|-]flags
@@ -69,12 +75,15 @@ Usage: phpctags [options] [file(s)]
        Recurse into directories supplied on command line [no].
   --sort=[yes|no|foldcase]
        Should tags be sorted (optionally ignoring case) [yes]?.
+  --verbose=[yes|no]
+       Enable verbose messages describing actions on each source file.
   --version
        Print version identifier to standard output.
 EOF;
 
 // prune options and its value from the $argv array
 $argv_ = array();
+
 foreach ($options as $option => $value) {
   foreach ($argv as $key => $chunk) {
     $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';
@@ -85,9 +94,17 @@ foreach ($options as $option => $value) {
 }
 while ($key = array_pop($argv_)) unset($argv[$key]);
 
-// option -V is an alternative to --version
+// option -V is an alternative to --verbose
 if (isset($options['V'])) {
-    $options['version'] = FALSE;
+    $options['verbose'] = 'yes';
+}
+
+if (isset($options['verbose'])) {
+    if ($options['verbose'] === FALSE || yes_or_no($options['verbose']) == 'yes') {
+        $options['V'] = 'yes';
+    } else if (yes_or_no($options['verbose']) != 'no') {
+        die('phpctags: Invalid value for "verbose" option'.PHP_EOL);
+    }
 }
 
 if (!isset($options['debug'])) {
@@ -135,6 +152,10 @@ if (isset($options['N']) && !isset($options['n'])) {
     $options['excmd'] = 'pattern';
 }
 
+if (isset($options['v']) || isset($options['verbose']))
+    $options['verbose'] = true;
+else
+    $options['verbose'] = false;
 if (!isset($options['excmd']))
     $options['excmd'] = 'pattern';
 if (!isset($options['format']))
@@ -201,6 +222,7 @@ if (isset($options['R']) && empty($argv)) {
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
+    $ctags->setCacheFile(isset($options['C']) ? $options['C'] : null);
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);

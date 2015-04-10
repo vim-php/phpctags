@@ -19,17 +19,32 @@ class PHPCtags
         'n' => 'namespace',
     );
 
+    /** @var array The extensions that will be indexed */
+    protected $mExtensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+
     private $mParser;
 
-    private $mStructs;
+    private $mLines;
 
     private $mOptions;
+
+    private $tagdata;
+
+    private $cachefile;
+
+    private $filecount;
 
     public function __construct($options)
     {
         $this->mParser = new PHPParser_Parser(new PHPParser_Lexer);
-        $this->mStructs = array();
+        $this->mLines = array();
         $this->mOptions = $options;
+        $this->filecount = 0;
+
+        // If a non default list of extensions was supplied, apply it.
+        if (isset($options['extensions'])) {
+            $this->mExtensions = explode(' ', $options['extensions']);
+        }
     }
 
     public function setMFile($file)
@@ -57,6 +72,10 @@ class PHPCtags
     public function addFile($file)
     {
         $this->mFiles[realpath($file)] = 1;
+    }
+
+    public function setCacheFile($file) {
+        $this->cachefile = $file;
     }
 
     public function addFiles($files)
@@ -250,10 +269,10 @@ class PHPCtags
         return $structs;
     }
 
-    private function render()
+    private function render($structure)
     {
         $str = '';
-        foreach ($this->mStructs as $struct) {
+        foreach ($structure as $struct) {
             $file = $struct['file'];
 
             if (!isset($files[$file]))
@@ -271,7 +290,10 @@ class PHPCtags
             if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
-                $str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
+                $line = rtrim($lines[$struct['line'] - 1], "\n");
+                $line = str_replace('\\', '\\\\\\', $line);
+                $line = preg_replace('|(?<!\\\\)/|', '\/', $line);
+                $str .= "\t" . "/^" . $line . "$/";
             }
 
             if ($this->mOptions['format'] == 1) {
@@ -357,19 +379,42 @@ class PHPCtags
             $str .= "\n";
         }
 
-        // remove the last line ending
-        $str = trim($str);
+        // remove the last line ending and carriage return
+        $str = trim(str_replace("\x0D", "", $str));
+
+        return $str;
+    }
+
+    private function full_render() {
+        // Files will have been rendered already, just join and export.
+
+        $str = '';
+        foreach($this->mLines as $file => $data) {
+          $str .= $data;
+        }
 
         // sort the result as instructed
         if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
             $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
         }
 
+        // Save all tag information to a file for faster updates if a cache file was specified.
+        if (isset($this->cachefile)) {
+            file_put_contents($this->cachefile, serialize($this->tagdata));
+            if ($this->mOptions['V']) {
+                echo "\nSaved cache file.\n";
+            }
+        }
+
+        $str = trim($str);
+
         return $str;
     }
 
     public function export()
     {
+        $start = microtime(true);
+
         if (empty($this->mFiles)) {
             throw new PHPCtagsException('No File specified.');
         }
@@ -378,57 +423,124 @@ class PHPCtags
             $this->process($file);
         }
 
-        return $this->render();
+        $content = $this->full_render();
+
+        $end = microtime(true);
+
+        if ($this->mOptions['V']) {
+            echo "It tooks ".($end-$start)." seconds.\n";
+        }
+
+        return $content;
     }
 
     private function process($file)
     {
+        // Load the tag md5 data to skip unchanged files.
+        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists(realpath($this->cachefile))) {
+            if ($this->mOptions['V']) {
+                echo "Loaded cache file.\n";
+            }
+            $this->tagdata = unserialize(file_get_contents(realpath($this->cachefile)));
+        }
+
         if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
+                new ReadableRecursiveDirectoryIterator(
                     $file,
                     FilesystemIterator::SKIP_DOTS |
                     FilesystemIterator::FOLLOW_SYMLINKS
                 )
             );
 
-            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
-
             foreach ($iterator as $filename) {
-                if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
+                if (!in_array(substr($filename, strrpos($filename, '.')), $this->mExtensions)) {
                     continue;
                 }
 
-                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
+                if ($this->isExcludedFile($filename)) {
                     continue;
                 }
 
                 try {
-                    $this->setMFile((string) $filename);
-                    $this->mStructs = array_merge(
-                        $this->mStructs,
-                        $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
-                    );
+                    $this->process_single_file($filename);
                 } catch(Exception $e) {
-                    echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                    echo "\nPHPParser: {$e->getMessage()} - {$filename}\n";
                 }
             }
         } else {
             try {
-                $this->setMFile($file);
-                $this->mStructs = array_merge(
-                    $this->mStructs,
-                    $this->struct($this->mParser->parse(file_get_contents($this->mFile)), TRUE)
-                );
+                $this->process_single_file($file);
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
+                echo "\nPHPParser: {$e->getMessage()} - {$file}\n";
             }
         }
+    }
+
+    private function process_single_file($filename)
+    {
+        if ($this->mOptions['V'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+            echo " ".$this->filecount." files\n";
+        }
+        $this->filecount++;
+
+        $this->setMFile((string) $filename);
+        $file = file_get_contents($this->mFile);
+        $md5 = md5($file);
+        if (isset($this->tagdata[$this->mFile][$md5])) {
+            // The file is the same as the previous time we analyzed and saved.
+            $this->mLines[$this->mFile] = $this->tagdata[$this->mFile][$md5];
+
+            if ($this->mOptions['V']) {
+                echo ".";
+            }
+            return;
+        }
+
+        $struct = $this->struct($this->mParser->parse($file), TRUE);
+        $this->mLines[$this->mFile] = $this->render($struct);
+        $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
+
+        if ($this->mOptions['V']) {
+            echo "U";
+        }
+    }
+
+    private function isExcludedFile($filename)
+    {
+        if (!isset($this->mOptions['exclude'])) {
+            return false;
+        }
+
+        if (is_string($this->mOptions['exclude'])) {
+            return false !== strpos($filename, $this->mOptions['exclude']);
+        }
+
+        if (is_array($this->mOptions['exclude'])) {
+            foreach ($this->mOptions['exclude'] as $excludePattern) {
+                if (false !== strpos($filename, $excludePattern)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
 class PHPCtagsException extends Exception {
     public function __toString() {
-        return "PHPCtags: {$this->message}\n";
+        return "\nPHPCtags: {$this->message}\n";
+    }
+}
+
+class ReadableRecursiveDirectoryIterator extends RecursiveDirectoryIterator {
+    function getChildren() {
+        try {
+            return new ReadableRecursiveDirectoryIterator($this->getPathname());
+        } catch(UnexpectedValueException $e) {
+            echo "\nPHPPCtags: {$e->getMessage()} - {$this->getPathname()}\n";
+            return new RecursiveArrayIterator(array());
+        }
     }
 }
