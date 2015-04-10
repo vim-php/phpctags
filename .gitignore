@@ -1,5 +1,4 @@
-tests/*.expect
-tests/*.result
+tests/.test_fs
 build/
 vendor/
 phpctags
