@@ -73,6 +73,7 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
 
     protected function runPHPCtagsWithKinds($kindString)
     {
+        $this->runPHPCtags(array("--kinds=$kindString"));
     }
 
     /**

@@ -60,7 +60,7 @@ Usage: phpctags [options] [file(s)]
   --fields=[+|-]flags
        Include selected extension fields (flags: "afmikKlnsStz") [fks].
   --kinds=[+|-]flags
-       Enable/disable tag kinds [cmfpvdi]
+       Enable/disable tag kinds [cmfpvditn]
   --format=level
        Force output of specified tag file format [2].
   --help
@@ -152,7 +152,7 @@ if (!isset($options['fields'])) {
 }
 
 if (!isset($options['kinds'])) {
-    $options['kinds'] = array('c', 'm', 'f', 'p', 'd', 'v', 'i');
+    $options['kinds'] = array('c', 'm', 'f', 'p', 'd', 'v', 'i', 't', 'n');
 } else {
     $options['kinds'] = str_split($options['kinds']);
 }
