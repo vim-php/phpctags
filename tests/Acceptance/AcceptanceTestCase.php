@@ -60,13 +60,19 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
     /**
      * @return void
      */
-    protected function runPHPCtags()
+    protected function runPHPCtags(array $params = array())
     {
         $entryPoint = realpath(__DIR__ . '/../../bootstrap.php');
 
-        exec("php \"$entryPoint\" --recurse=yes -f - {$this->testDir}", $output);
+        $params = implode(' ', $params);
+
+        exec("php \"$entryPoint\" --recurse=yes $params -f - {$this->testDir}", $output);
 
         $this->tagsFileContent = $output;
+    }
+
+    protected function runPHPCtagsWithKinds($kindString)
+    {
     }
 
     /**
