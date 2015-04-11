@@ -8,7 +8,7 @@ final class KindsTest extends AcceptanceTestCase
     {
         parent::setUp();
 
-        $this->givenSourceFile('KindsExample.php', <<<'EOS'
+        $sourceCode =<<<'EOS'
 <?php
 namespace KindsExampleNamespace;
 class KindsExampleClass
@@ -42,12 +42,17 @@ $var = 'test value';
 interface KindsExampleInterface
 {
 }
+EOS;
 
+        if (version_compare('5.4.0', PHP_VERSION, '<=')) {
+            $sourceCode .= <<<EOS
 trait KindsExampleTrait
 {
 }
-EOS
-        );
+EOS;
+        }
+
+        $this->givenSourceFile('KindsExample.php', $sourceCode);
     }
 
     /**
@@ -243,6 +248,10 @@ EOS
      */
     public function itSupportsTraitKindsParameter()
     {
+        if (version_compare('5.4.0', PHP_VERSION, '>')) {
+            $this->markTestSkipped('Traits were not introduced until 5.4');
+        }
+
         $this->runPHPCtagsWithKinds('t');
 
         $this->assertTagsFileHeaderIsCorrect();
@@ -251,7 +260,7 @@ EOS
             'KindsExample.php',
             'KindsExampleTrait',
             self::KIND_TRAIT,
-            35,
+            33,
             'namespace:KindsExampleNamespace'
         );
     }
