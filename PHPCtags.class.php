@@ -23,6 +23,7 @@ class PHPCtags
     private $mLines;
     private $mOptions;
     private $tagdata;
+    private $cachefile;
     private $filecount;
 
     public function __construct($options)
@@ -58,6 +59,10 @@ class PHPCtags
     public function addFile($file)
     {
         $this->mFiles[realpath($file)] = 1;
+    }
+
+    public function setCacheFile($file) {
+        $this->cachefile = $file;
     }
 
     public function addFiles($files)
@@ -377,6 +382,13 @@ class PHPCtags
             $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
         }
 
+        // Save all tag information to a file for faster updates if a cache file was specified.
+        if (isset($this->cachefile)) {
+            file_put_contents($this->cachefile, serialize($this->tagdata));
+            if ($this->mOptions['v']) {
+                echo "Saved cache file.".PHP_EOL;
+            }
+        }
         return $str;
     }
 
@@ -395,6 +407,14 @@ class PHPCtags
 
     private function process($file)
     {
+        // Load the tag md5 data to skip unchanged files.
+        if (!isset($this->tagdata) && isset($this->cachefile) && file_exists($this->cachefile)) {
+            if ($this->mOptions['v']) {
+                echo "Loaded cache file.".PHP_EOL;
+            }
+            $this->tagdata = unserialize(file_get_contents($this->cachefile));
+        }
+
         if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(

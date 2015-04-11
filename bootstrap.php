@@ -41,6 +41,8 @@ Usage: phpctags [options] [file(s)]
   -f <name>
        Write tags to specified file. Value of "-" writes tags to stdout
        ["tags"].
+  -C <name>
+       Use a cache file to store tags for faster updates.
   -n   Equivalent to --excmd=number.
   -N   Equivalent to --excmd=pattern.
   -o   Alternative for -f.
@@ -203,6 +205,7 @@ if (isset($options['R']) && empty($argv)) {
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
+    $ctags->setCacheFile(isset($options['C']) ? $options['C'] : null);
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
