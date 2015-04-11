@@ -438,8 +438,8 @@ class ReadableRecursiveDirectoryIterator extends RecursiveDirectoryIterator {
         try {
             return new ReadableRecursiveDirectoryIterator($this->getPathname());
         } catch(UnexpectedValueException $e) {
-            echo "\nPHPPCtags: {$e->getMessage()} - {$this->getPathname()}\n";
+            file_put_contents('php://stderr', "\nPHPPCtags: {$e->getMessage()} - {$this->getPathname()}\n");
             return new RecursiveArrayIterator(array());
         }
     }
-} 
+}
