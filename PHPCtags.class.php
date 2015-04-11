@@ -412,7 +412,7 @@ class PHPCtags
         $end = microtime(true);
 
         if ($this->mOptions['V']) {
-            echo "It tooks ".($end-$start)." seconds.\n";
+            echo "It tooks ".($end-$start)." seconds.".PHP_EOL;
         }
 
         return $content;
@@ -451,7 +451,7 @@ class PHPCtags
                 try {
                     $this->process_single_file($filename);
                 } catch(Exception $e) {
-                    echo "\nPHPParser: {$e->getMessage()} - {$filename}\n";
+                    echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
                 }
             }
         } else {
