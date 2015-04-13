@@ -18,5 +18,5 @@
             "tests\\PHPCTags\\": "tests/"
         }
     },
-    "bin": ["phpctags"]
+    "bin": ["bin/phpctags"]
 }
