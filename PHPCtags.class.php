@@ -385,7 +385,7 @@ class PHPCtags
     {
         if (is_dir($file) && isset($this->mOptions['R'])) {
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator(
+                new ReadableRecursiveDirectoryIterator(
                     $file,
                     FilesystemIterator::SKIP_DOTS |
                     FilesystemIterator::FOLLOW_SYMLINKS
@@ -430,5 +430,16 @@ class PHPCtags
 class PHPCtagsException extends Exception {
     public function __toString() {
         return "PHPCtags: {$this->message}\n";
+    }
+}
+
+class ReadableRecursiveDirectoryIterator extends RecursiveDirectoryIterator {
+    function getChildren() {
+        try {
+            return new ReadableRecursiveDirectoryIterator($this->getPathname());
+        } catch(UnexpectedValueException $e) {
+            file_put_contents('php://stderr', "\nPHPPCtags: {$e->getMessage()} - {$this->getPathname()}\n");
+            return new RecursiveArrayIterator(array());
+        }
     }
 }

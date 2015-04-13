@@ -33,7 +33,7 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->testDir = __DIR__ . '/../.test_fs';
+        $this->testDir = __DIR__ . '/../../.test_fs';
 
         if (!file_exists($this->testDir)) {
             mkdir($this->testDir);
@@ -55,6 +55,20 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
         $filename = $this->testDir . DIRECTORY_SEPARATOR . $filename;
 
         file_put_contents($filename, $content);
+    }
+
+    protected function givenDirectory($dirname)
+    {
+        $dirname = $this->testDir . DIRECTORY_SEPARATOR . $dirname;
+
+        mkdir($dirname);
+    }
+
+    protected function givenMode($file, $mode)
+    {
+        $file = $this->testDir . DIRECTORY_SEPARATOR . $file;
+
+        chmod($file, $mode);
     }
 
     /**
@@ -175,6 +189,10 @@ abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
     {
         if (empty($this->testDir)) {
             throw \RuntimeException('Test directory does not exist');
+        }
+
+        foreach (glob($this->testDir . DIRECTORY_SEPARATOR . '*') as $file) {
+            chmod($file, 0755);
         }
 
         $files = new RecursiveIteratorIterator(
