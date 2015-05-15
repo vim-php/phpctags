@@ -35,8 +35,6 @@ $phar->buildFromIterator(
                     'tests/*',
                     'Makefile',
                     'bin/phpctags',
-                    'phpctags',
-                    'phpctags.sh',
                     'buildPHAR.php',
                 );
 
