@@ -18,16 +18,18 @@ Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
 Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
 EOF;
 
-$options = getopt('af:Nno:RuV', array(
+$options = getopt('aC:f:Nno:RuV', array(
     'append::',
     'debug',
     'exclude:',
     'excmd::',
     'fields::',
+    'kinds::',
     'format::',
     'help',
     'recurse::',
     'sort::',
+    'verbose::',
     'version',
     'memory::',
 ));
@@ -41,12 +43,19 @@ Usage: phpctags [options] [file(s)]
   -f <name>
        Write tags to specified file. Value of "-" writes tags to stdout
        ["tags"].
+  -C <name>
+       Use a cache file to store tags for faster updates.
   -n   Equivalent to --excmd=number.
   -N   Equivalent to --excmd=pattern.
   -o   Alternative for -f.
   -R   Equivalent to --recurse.
   -u   Equivalent to --sort=no.
+<<<<<<< HEAD
+  -v   Equivalent to --verbose.
+  -V   Equivalent to --version.
+=======
   -V   Equivalent to --verbose.
+>>>>>>> a86869b... Fixed issues based on @mr-russ's PR.
   --append=[yes|no]
        Should tags should be appended to existing tag file [no]?
   --debug
@@ -57,7 +66,9 @@ Usage: phpctags [options] [file(s)]
   --excmd=number|pattern|mix
        Uses the specified type of EX command to locate tags [mix].
   --fields=[+|-]flags
-      Include selected extension fields (flags: "afmikKlnsStz") [fks].
+       Include selected extension fields (flags: "afmikKlnsStz") [fks].
+  --kinds=[+|-]flags
+       Enable/disable tag kinds [cmfpvditn]
   --format=level
        Force output of specified tag file format [2].
   --help
@@ -69,12 +80,19 @@ Usage: phpctags [options] [file(s)]
        Recurse into directories supplied on command line [no].
   --sort=[yes|no|foldcase]
        Should tags be sorted (optionally ignoring case) [yes]?.
+<<<<<<< HEAD
+  --Version
+=======
+  --verbose=[yes|no]
+       Enable verbose messages describing actions on each source file.
   --version
+>>>>>>> a86869b... Fixed issues based on @mr-russ's PR.
        Print version identifier to standard output.
 EOF;
 
 // prune options and its value from the $argv array
 $argv_ = array();
+
 foreach ($options as $option => $value) {
   foreach ($argv as $key => $chunk) {
     $regex = '/^'. (isset($option[1]) ? '--' : '-') . $option . '/';
@@ -85,9 +103,17 @@ foreach ($options as $option => $value) {
 }
 while ($key = array_pop($argv_)) unset($argv[$key]);
 
-// option -V is an alternative to --version
+// option -V is an alternative to --verbose
 if (isset($options['V'])) {
-    $options['version'] = FALSE;
+    $options['verbose'] = 'yes';
+}
+
+if (isset($options['verbose'])) {
+    if ($options['verbose'] === FALSE || yes_or_no($options['verbose']) == 'yes') {
+        $options['V'] = 'yes';
+    } else if (yes_or_no($options['verbose']) != 'no') {
+        die('phpctags: Invalid value for "verbose" option'.PHP_EOL);
+    }
 }
 
 if (!isset($options['debug'])) {
@@ -141,11 +167,19 @@ if (!isset($options['format']))
     $options['format'] = 2;
 if (!isset($options['memory']))
     $options['memory'] = '128M';
+
 if (!isset($options['fields'])) {
     $options['fields'] = array('n', 'k', 's', 'a','i');
 } else {
     $options['fields'] = str_split($options['fields']);
 }
+
+if (!isset($options['kinds'])) {
+    $options['kinds'] = array('c', 'm', 'f', 'p', 'd', 'v', 'i', 't', 'n');
+} else {
+    $options['kinds'] = str_split($options['kinds']);
+}
+
 
 // handle -u or --sort options
 if (isset($options['sort'])) {
@@ -201,6 +235,7 @@ if (isset($options['R']) && empty($argv)) {
 try {
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
+    $ctags->setCacheFile(isset($options['C']) ? $options['C'] : null);
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
@@ -218,6 +253,8 @@ if (isset($options['f']) && $options['f'] !== '-') {
 }
 
 $mode = ($options['sort'] == 'yes' ? 1 : ($options['sort'] == 'foldcase' ? 2 : 0));
+
+if (!isset($options['a'])) {
 $tagline = <<<EOF
 !_TAG_FILE_FORMAT\t2\t/extended format; --format=1 will not append ;" to lines/
 !_TAG_FILE_SORTED\t{$mode}\t/0=unsorted, 1=sorted, 2=foldcase/
@@ -226,6 +263,7 @@ $tagline = <<<EOF
 !_TAG_PROGRAM_URL\thttps://github.com/techlivezheng/phpctags\t/official site/
 !_TAG_PROGRAM_VERSION\t${version}\t//\n
 EOF;
+}
 
 fwrite($tagfile, $tagline.$result);
 fclose($tagfile);

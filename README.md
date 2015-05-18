@@ -1,5 +1,7 @@
 phpctags
 ========
+Master  [![Build Status](https://travis-ci.org/vim-php/phpctags.svg)](https://travis-ci.org/vim-php/phpctags?branch=master)  
+Develop [![Build Status](https://travis-ci.org/vim-php/phpctags.svg)](https://travis-ci.org/vim-php/phpctags?branch=develop)  
 
 An enhanced php [ctags](http://ctags.sourceforge.net/) index file generator
 compatible with http://ctags.sourceforge.net/FORMAT.
@@ -18,6 +20,14 @@ Enjoy!
 Installation
 ------------
 
+## Download
+
+```
+curl -Ss http://vim-php.com/phpctags/install/phpctags.phar > phpctags
+php ./phpctags
+```
+
+## Build
 > We currently only support building PHAR executable for \*nix like platform
 which provides `make` utility. If you are interested in building an executable
 for other platform, especially for Windows, please help yourself out. It
@@ -27,7 +37,7 @@ provide a patch for this.
 
 Installation is simple, make sure you have PHP's PHAR extension enabled, then
 just run `make` in the root directory of the source, you will get a `phpctags`
-PHAR executable, add it to your `$PATH`, then you can invoke `phpcatgs`
+PHAR executable, add it to your `$PATH`, then you can invoke `phpctags`
 directly from anywhere.
 
 See [phpctags on packagist](http://packagist.org/packages/techlivezheng/phpctags)
