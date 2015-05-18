@@ -20,6 +20,14 @@ Enjoy!
 Installation
 ------------
 
+## Download
+
+```
+curl -Ss http://vim-php.com/phpctags/install/phpctags.phar > phpctags
+php ./phpctags
+```
+
+## Build
 > We currently only support building PHAR executable for \*nix like platform
 which provides `make` utility. If you are interested in building an executable
 for other platform, especially for Windows, please help yourself out. It

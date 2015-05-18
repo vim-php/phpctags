@@ -1,3 +1,12 @@
+Version 0.6.0
+* Exclude phpctags when re-building phar
+* Fix typo in README.md
+* Fixed PHPUnit.xml.dist
+* Refactoring codebase
+* Refactroing testsuite
+* Now composer support an entry point to install in globally
+* Define new build flow
+
 Version 0.5.1
 -------------
 
