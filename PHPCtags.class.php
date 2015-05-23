@@ -473,6 +473,7 @@ class PHPCtags
             echo " ".$this->filecount." files".PHP_EOL;
         }
         $this->filecount++;
+        $startfile = microtime(true);
 
         $this->setMFile((string) $filename);
         $file = file_get_contents($this->mFile);
@@ -487,12 +488,14 @@ class PHPCtags
         }
 
         $struct = $this->struct($this->mParser->parse($file), TRUE);
+        $finishfile = microtime(true);
         $this->mLines[$this->mFile] = $this->render($struct);
+        $finishmerge = microtime(true);
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
         if ($this->mOptions['debug']) {
             echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile.PHP_EOL;
         } else if ($this->mOptions['V']) {
-            echo "U";
+            echo ".";
         }
     }
 

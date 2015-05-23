@@ -111,7 +111,9 @@ if (isset($options['verbose'])) {
     $options['V'] = false;
 }
 
-if (!isset($options['debug'])) {
+if (isset($options['debug'])) {
+    $options['debug'] = true;
+} else {
     error_reporting(0);
 }
 
