@@ -207,14 +207,14 @@ class PHPCtags
                 $this->struct($subNode, FALSE, array('namespace' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Expr_Assign) {
-            if (is_string($node->var->name)) {
+            if (isset($node->var->name) && is_string($node->var->name)) {
                 $kind = 'v';
                 $node = $node->var;
                 $name = $node->name;
                 $line = $node->getLine();
             }
         } elseif ($node instanceof PHPParser_Node_Expr_AssignRef) {
-            if (is_string($node->var->name)) {
+            if (isset($node->var->name) && is_string($node->var->name)) {
                 $kind = 'v';
                 $node = $node->var;
                 $name = $node->name;
@@ -389,7 +389,7 @@ class PHPCtags
         // Save all tag information to a file for faster updates if a cache file was specified.
         if (isset($this->cachefile)) {
             file_put_contents($this->cachefile, serialize($this->tagdata));
-            if ($this->mOptions['v']) {
+            if ($this->mOptions['V']) {
                 echo "Saved cache file.".PHP_EOL;
             }
         }
@@ -416,7 +416,7 @@ class PHPCtags
         $end = microtime(true);
 
         if ($this->mOptions['V']) {
-            echo "It tooks ".($end-$start)." seconds.".PHP_EOL;
+            echo PHP_EOL."It took ".($end-$start)." seconds.".PHP_EOL;
         }
 
         return $content;
@@ -426,7 +426,7 @@ class PHPCtags
     {
         // Load the tag md5 data to skip unchanged files.
         if (!isset($this->tagdata) && isset($this->cachefile) && file_exists(realpath($this->cachefile))) {
-            if ($this->mOptions['v']) {
+            if ($this->mOptions['V']) {
                 echo "Loaded cache file.".PHP_EOL;
             }
             $this->tagdata = unserialize(file_get_contents(realpath($this->cachefile)));
@@ -469,7 +469,7 @@ class PHPCtags
 
     private function process_single_file($filename)
     {
-        if ($this->mOptions['v'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
+        if ($this->mOptions['V'] && $this->filecount > 1 && $this->filecount % 64 == 0) {
             echo " ".$this->filecount." files".PHP_EOL;
         }
         $this->filecount++;
@@ -491,7 +491,7 @@ class PHPCtags
         $this->tagdata[$this->mFile][$md5] = $this->mLines[$this->mFile];
         if ($this->mOptions['debug']) {
             echo "Parse: ".($finishfile - $startfile).", Merge: ".($finishmerge-$finishfile)."; (".$this->filecount.")".$this->mFile.PHP_EOL;
-        } else if ($this->mOptions['v']) {
+        } else if ($this->mOptions['V']) {
             echo "U";
         }
     }
