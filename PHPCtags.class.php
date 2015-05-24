@@ -119,6 +119,7 @@ class PHPCtags
         $return_type="";
         $implements = array();
 
+
         if (!empty($parent)) array_push($scope, $parent);
 
         if (is_array($node)) {
@@ -193,6 +194,9 @@ class PHPCtags
             $kind = 'f';
             $name = $node->name;
             $line = $node->getLine();
+            if ( preg_match( "/@return[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
+                $return_type=$matches[1];
+            }
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('function' => $name));
             }
@@ -383,16 +387,21 @@ class PHPCtags
                 $str .= "\t" . "type:" . $struct['type'] ;
             }
 
+
             $str .= "\n";
         }
+
 
         // remove the last line ending
         $str = trim($str);
 
+    /*
         // sort the result as instructed
         if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
             $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
         }
+
+    */
 
         return $str;
     }
@@ -407,7 +416,8 @@ class PHPCtags
             $this->process($file);
         }
 
-        return $this->render();
+        $ret=$this->render();
+        return $ret;
     }
 
     private function process($file)
@@ -456,6 +466,7 @@ class PHPCtags
         }
     }
 }
+  
 
 class PHPCtagsException extends Exception {
     public function __toString() {

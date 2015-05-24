@@ -199,8 +199,10 @@ if (isset($options['R']) && empty($argv)) {
 }
 
 try {
+
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
+
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
@@ -227,7 +229,7 @@ $tagline = <<<EOF
 !_TAG_PROGRAM_VERSION\t${version}\t//\n
 EOF;
 
-fwrite($tagfile, $tagline.$result);
+$ret=fwrite($tagfile, $tagline.$result);
 fclose($tagfile);
 
 function yes_or_no($arg) {
