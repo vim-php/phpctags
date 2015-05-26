@@ -6,7 +6,7 @@ source := README.md \
           PHPCtags.class.php
 
 .PHONY: all
-all: phpctags
+all: clean phpctags
 
 .PHONY: clean
 clean:

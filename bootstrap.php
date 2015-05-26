@@ -11,6 +11,8 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
     );
 }
 
+
+
 $version = PHPCtags::VERSION;
 
 $copyright = <<<'EOF'
@@ -91,7 +93,7 @@ if (isset($options['V'])) {
 }
 
 if (!isset($options['debug'])) {
-    error_reporting(0);
+    //error_reporting(0);
 }
 
 if (isset($options['help'])) {
@@ -140,7 +142,7 @@ if (!isset($options['excmd']))
 if (!isset($options['format']))
     $options['format'] = 2;
 if (!isset($options['memory']))
-    $options['memory'] = '128M';
+    $options['memory'] = '1024M';
 if (!isset($options['fields'])) {
     $options['fields'] = array('n', 'k', 's', 'a','i');
 } else {
@@ -193,21 +195,24 @@ if (isset($options['recurse'])) {
     }
 }
 
+
 // if option -R is given and no file is specified, use current working directory
 if (isset($options['R']) && empty($argv)) {
     $argv[] = getcwd();
 }
+
 
 try {
 
     $ctags = new PHPCtags($options);
     $ctags->addFiles($argv);
 
+
+
     $result = $ctags->export();
 } catch (Exception $e) {
     die("phpctags: {$e->getMessage()}".PHP_EOL);
 }
-
 // write to a specified file
 if (isset($options['f']) && $options['f'] !== '-') {
     $tagfile = fopen($options['f'], isset($options['a']) ? 'a' : 'w');

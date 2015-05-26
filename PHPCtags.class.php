@@ -24,6 +24,7 @@ class PHPCtags
     private $mStructs;
 
     private $mOptions;
+    private $mUseConfig=array();
 
     public function __construct($options)
     {
@@ -104,6 +105,13 @@ class PHPCtags
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
+    private function getRealClassName($className){
+        if (isset($this->mUseConfig[$className])){
+            return  $this->mUseConfig[$className];
+        }else{
+            return $className;
+        }
+    }
     private function struct($node, $reset=FALSE, $parent=array())
     {
         static $scope = array();
@@ -120,9 +128,17 @@ class PHPCtags
         $implements = array();
 
 
+
         if (!empty($parent)) array_push($scope, $parent);
 
         if (is_array($node)) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
+        } elseif ($node instanceof PHPParser_Node_Stmt_UseUse ) {
+            $this->mUseConfig[$node->alias ]= $node->name->toString() ;
+
+        } elseif ($node instanceof PHPParser_Node_Stmt_Use ) {
             foreach ($node as $subNode) {
                 $this->struct($subNode);
             }
@@ -280,13 +296,15 @@ class PHPCtags
         foreach ($this->mStructs as $struct) {
             $file = $struct['file'];
 
-            if (!isset($files[$file]))
+            if (!isset($files[$file])){
+                $a = file($file);
                 $files[$file] = file($file);
-
+            }
             $lines = $files[$file];
 
             if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
                 return;
+
 
             if  ($struct['name'] instanceof PHPParser_Node_Expr_Variable ){
                 $str .= $struct['name']->name;
@@ -324,6 +342,7 @@ class PHPCtags
             if (in_array('n', $this->mOptions['fields'])) {
                 $str .= "\t" . "line:" . $struct['line'];
             }
+
 
             #field=s
             if (in_array('s', $this->mOptions['fields']) && !empty($struct['scope'])) {
@@ -366,11 +385,11 @@ class PHPCtags
             if(in_array('i', $this->mOptions['fields'])) {
                 $inherits = array();
                 if(!empty($struct['extends'])) {
-                    $inherits[] = $struct['extends']->toString();
+                    $inherits[] =  $this->getRealClassName( $struct['extends']->toString());
                 }
                 if(!empty($struct['implements'])) {
                     foreach($struct['implements'] as $interface) {
-                        $inherits[] = $interface->toString();
+                        $inherits[] = $this->getRealClassName( $interface->toString());
                     }
                 }
                 if(!empty($inherits))
@@ -386,6 +405,7 @@ class PHPCtags
             if ( !empty($struct['type'])) {
                 $str .= "\t" . "type:" . $struct['type'] ;
             }
+
 
 
             $str .= "\n";
@@ -411,6 +431,7 @@ class PHPCtags
         if (empty($this->mFiles)) {
             throw new PHPCtagsException('No File specified.');
         }
+
 
         foreach (array_keys($this->mFiles) as $file) {
             $this->process($file);
