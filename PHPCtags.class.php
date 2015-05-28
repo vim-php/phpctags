@@ -482,7 +482,7 @@ class PHPCtags
                     $this->struct($ret_tree, TRUE)
                 );
             } catch(Exception $e) {
-                echo "PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
+                echo "PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
             }
         }
     }
