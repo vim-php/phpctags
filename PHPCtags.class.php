@@ -148,7 +148,37 @@ class PHPCtags
             $extends = $node->extends;
             $implements = $node->implements;
             $line = $node->getLine();
-            foreach ($node as $subNode) {
+
+            foreach ($node as $key=> $subNode) {
+                if ($key=="stmts"){
+                    foreach ($subNode as $tmpNode) {
+                        $comments=$tmpNode->getAttribute("comments");
+                        if (is_array($comments)){
+                            foreach( $comments  as $comment ){
+                                if ( preg_match(
+                                    "/@var[ \t]+\\$([a-zA-Z0-9_]+)[ \t]+([a-zA-Z0-9_\\\\]+)/",
+                                    $comment->getText(), $matches) ){
+
+                                    /**  @var  $proNode PHPParser_Node_Stmt_Property  */
+                                    $field_name=$matches[1];
+                                    $field_return_type=$matches[2];
+                                    $structs[] = array(
+                                        'file' => $this->mFile,
+                                        'kind' => "p",
+                                        'name' => $field_name,
+                                        'extends' => null,
+                                        'implements' => null,
+                                        'line' => $comment->getLine() ,
+                                        'scope' => null,
+                                        'access' => "public",
+                                        'type' => $field_return_type,
+                                    );
+
+                                }
+                            }
+                        }
+                    }
+                }
                 $this->struct($subNode, FALSE, array('class' => $name));
             }
         } elseif ($node instanceof PHPParser_Node_Stmt_Property) {
