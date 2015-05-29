@@ -149,6 +149,8 @@ class PHPCtags
             $implements = $node->implements;
             $line = $node->getLine();
 
+            $filed_scope=$scope;
+            array_push($filed_scope, array('class' => $name ) );
             foreach ($node as $key=> $subNode) {
                 if ($key=="stmts"){
                     foreach ($subNode as $tmpNode) {
@@ -169,7 +171,7 @@ class PHPCtags
                                         'extends' => null,
                                         'implements' => null,
                                         'line' => $comment->getLine() ,
-                                        'scope' => null,
+                                        'scope' => $filed_scope ,
                                         'access' => "public",
                                         'type' => $field_return_type,
                                     );
