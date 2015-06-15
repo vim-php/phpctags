@@ -106,11 +106,28 @@ class PHPCtags
     }
 
     private function getRealClassName($className){
-        if (isset($this->mUseConfig[$className])){
-            return  $this->mUseConfig[$className];
+        if (  $className[0] != "\\"  ){
+            $ret_arr=split("\\\\", $className , 2  );
+            if (count($ret_arr)==2){
+
+                $pack_name=$ret_arr[0];
+                if (isset($this->mUseConfig[ $pack_name])){
+                    return  $this->mUseConfig[$pack_name]."\\".$ret_arr[1] ;
+                }else{
+                    return $className;
+                }
+            }else{
+                if (isset($this->mUseConfig[$className])){
+                    return  $this->mUseConfig[$className];
+                }else{
+                    return $className;
+                }
+            }
+    
         }else{
             return $className;
         }
+
     }
     private function struct($node, $reset=FALSE, $parent=array())
     {
@@ -163,7 +180,7 @@ class PHPCtags
 
                                     /**  @var  $proNode PHPParser_Node_Stmt_Property  */
                                     $field_name=$matches[1];
-                                    $field_return_type=$matches[2];
+                                    $field_return_type= $this->getRealClassName( $matches[2]);
                                     $structs[] = array(
                                         'file' => $this->mFile,
                                         'kind' => "p",
@@ -189,7 +206,7 @@ class PHPCtags
             $name = $prop->name;
             $line = $prop->getLine();
             if ( preg_match( "/@var[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
-                $return_type=$matches[1];
+                $return_type=$this->getRealClassName( $matches[1]);
             }
 
             $access = $this->getNodeAccess($node);
@@ -204,7 +221,7 @@ class PHPCtags
             $line = $node->getLine();
             $access = $this->getNodeAccess($node);
             if ( preg_match( "/@return[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
-                $return_type=$matches[1];
+                $return_type=$this->getRealClassName( $matches[1]);
             }
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('method' => $name));
@@ -243,7 +260,7 @@ class PHPCtags
             $name = $node->name;
             $line = $node->getLine();
             if ( preg_match( "/@return[ \t]+([a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
-                $return_type=$matches[1];
+                $return_type=$this->getRealClassName( $matches[1]);
             }
             foreach ($node as $subNode) {
                 $this->struct($subNode, FALSE, array('function' => $name));
