@@ -28,6 +28,39 @@ EOS
         $this->assertTagsFileHeaderIsCorrect();
         $this->assertTagsFileContainsNoTagsFromFile('File2.php');
     }
+    
+    /**
+     * @test
+     */
+    public function itExcludesMultipleFilesByName()
+    {
+        $this->givenSourceFile('File1.php', <<<'EOS'
+<?php
+
+$test = 1;
+EOS
+        );
+
+        $this->givenSourceFile('File2.php', <<<'EOS'
+<?php
+
+$test = 1;
+EOS
+        );
+
+        $this->givenSourceFile('File3.php', <<<'EOS'
+<?php
+
+$test = 1;
+EOS
+        );
+
+        $this->runPHPCtagsWithExcludes(array('File2.php', 'File3.php'));
+
+        $this->assertTagsFileHeaderIsCorrect();
+        $this->assertTagsFileContainsNoTagsFromFile('File2.php');
+        $this->assertTagsFileContainsNoTagsFromFile('File3.php');
+    }
 
     /**
      * @test
