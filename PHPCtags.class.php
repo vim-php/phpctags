@@ -452,8 +452,19 @@ class PHPCtags
                     continue;
                 }
 
-                if (isset($this->mOptions['exclude']) && false !== strpos($filename, $this->mOptions['exclude'])) {
-                    continue;
+                // multiple --exclude options can be specified
+                if (isset($this->mOptions['exclude'])) {
+                    $exclude = $this->mOptions['exclude'];
+
+                    if (is_array($exclude)) {
+                        foreach ($exclude as $item) {
+                            if (false !== strpos($filename, $item)) {
+                                continue 2;
+                            }
+                        }
+                    } elseif (false !== strpos($filename, $exclude)) {
+                        continue;
+                    }
                 }
 
                 try {
