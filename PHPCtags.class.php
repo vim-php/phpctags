@@ -445,7 +445,7 @@ class PHPCtags
                 )
             );
 
-            $extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+            $extensions = $this->mOptions['extensions'];
 
             foreach ($iterator as $filename) {
                 if (!in_array(substr($filename, strrpos($filename, '.')), $extensions)) {
