@@ -25,6 +25,7 @@ $options = getopt('aC:f:Nno:RuV', array(
     'excmd::',
     'fields::',
     'kinds::',
+    'extensions::',
     'format::',
     'help',
     'recurse::',
@@ -64,6 +65,8 @@ Usage: phpctags [options] [file(s)]
        Include selected extension fields (flags: "afmikKlnsStz") [fks].
   --kinds=[+|-]flags
        Enable/disable tag kinds [cmfpvditn]
+  --extensions=[+|-]extension[,[+|-]]extension
+       Enable/disable file extensions [+.php,+.php3,+.php4,+.php5,+.phps]
   --format=level
        Force output of specified tag file format [2].
   --help
@@ -177,6 +180,22 @@ if (!isset($options['kinds'])) {
     $options['kinds'] = str_split($options['kinds']);
 }
 
+$default_extensions = array('.php', '.php3', '.php4', '.php5', '.phps');
+if (!isset($options['extensions'])) {
+    $options['extensions'] = $default_extensions;
+} else {
+    $extensions = explode(',', $options['extensions']);
+    $options['extensions'] = $default_extensions;
+    foreach ($extensions as $ext) {
+        if ($ext[0] == '+') {
+            $options['extensions'][] = substr($ext, 1);
+        } elseif ($ext[0] == '-') {
+            $options['extensions'] = array_diff($options['extensions'], array(substr($ext, 1)));
+        } else {
+            die('phpctags: Invalid value for "extensions" option ' . $ext . PHP_EOL);
+        }
+    }
+}
 
 // handle -u or --sort options
 if (isset($options['sort'])) {
