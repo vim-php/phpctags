@@ -33,13 +33,15 @@ build:
 
 build/composer.phar: | build
 	@echo "Installing composer ..."
-	@curl -s http://getcomposer.org/installer | php -- --install-dir=build
+	@curl -s http://getcomposer.org/installer | \
+		  php -dextension=phar.so -dextension=openssl.so -- --install-dir=build \
+		  -dextension=phar.so
 
 vendor: composer.lock build/composer.phar
 	@echo "Installing vendor libraries ..."
-	@php build/composer.phar install
+	@php -dextension=phar.so -dextension=openssl.so build/composer.phar install
 	@touch vendor/
 
 build/phpctags.phar: vendor $(source) | build
-	@php -dphar.readonly=0 buildPHAR.php
+	@php -dextension=phar.so -dextension=openssl.so -dphar.readonly=0 buildPHAR.php
 	@chmod +x build/phpctags.phar
