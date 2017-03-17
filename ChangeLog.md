@@ -1,3 +1,8 @@
+Version 0.6.1
+
+* Follow symlinks below directories. (Previously only symlinks in the top
+  directory were followed)
+
 Version 0.6.0
 * Exclude phpctags when re-building phar
 * Fix typo in README.md
