@@ -1,3 +1,4 @@
 .test_fs
 build/
 vendor/
+composer.lock
