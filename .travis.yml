@@ -12,8 +12,3 @@ before_script:
 
 script:
     - vendor/bin/phpunit
-
-matrix:
-  fast_finish: true
-  allow_failures:
-    - php: 7
