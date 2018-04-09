@@ -23,7 +23,12 @@ Installation
 
 ```
 curl -Ss http://vim-php.com/phpctags/install/phpctags.phar > phpctags
-php ./phpctags
+```
+
+## Usage
+
+```
+php ./phpctags [dir]
 ```
 
 ## Build
