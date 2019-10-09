@@ -132,6 +132,10 @@ class PHPCtags
             foreach ($node as $subNode) {
                 $this->struct($subNode);
             }
+        } elseif ($node instanceof Stmt\Expression) {
+            foreach ($node as $subNode) {
+                $this->struct($subNode);
+            }
         } elseif ($node instanceof Stmt\Class_) {
             $kind = 'c';
             $name = $node->name;
