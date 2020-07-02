@@ -10,7 +10,7 @@
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
@@ -25,59 +25,65 @@
           <li><a class="buttons github" href="https://github.com/techlivezheng/phpctags">View On GitHub</a></li>
         </ul>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/techlivezheng">techlivezheng</a></p>
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/techlivezheng">techlivezheng</a>
+          and <a class="header name" href="https://github.com/InFog">Evaldo Bento</a></p>
 
 
       </header>
       <section>
         <h1>phpctags</h1>
 
-<p>An enhanced php <a href="http://ctags.sourceforge.net/">ctags</a> index file generator
-compatible with <a href="http://ctags.sourceforge.net/FORMAT">http://ctags.sourceforge.net/FORMAT</a>.</p>
+        <p>An enhanced php <a href="http://ctags.sourceforge.net/">ctags</a> index file generator
+          compatible with <a href="http://ctags.sourceforge.net/FORMAT">http://ctags.sourceforge.net/FORMAT</a>.</p>
 
-<p>Using <a href="https://github.com/nikic/PHP-Parser">PHP_Parse</a> as PHP syntax parsing
-backend, written in pure PHP. The generated ctags index file contains scope
-and access information about class's methods and properties.</p>
+        <p>Using <a href="https://github.com/nikic/PHP-Parser">PHP_Parse</a> as PHP syntax parsing
+          backend, written in pure PHP. The generated ctags index file contains scope
+          and access information about class's methods and properties.</p>
 
-<p>This tool was originally developed to enhance the PHP syntax outline surport
-for vim <a href="http://majutsushi.github.com/tagbar/">tagbar</a> plugin. The enhaced
-functionality has been included into an addon plugin for tagbar as
-<a href="https://github.com/techlivezheng/tagbar-phpctags">tagbar-phpctags</a>.</p>
+        <p>This tool was originally developed to enhance the PHP syntax outline surport
+          for vim <a href="http://majutsushi.github.com/tagbar/">tagbar</a> plugin. The enhaced
+          functionality has been included into an addon plugin for tagbar as
+          <a href="https://github.com/techlivezheng/tagbar-phpctags">tagbar-phpctags</a>.</p>
 
-<p>Enjoy!</p>
+        <p>Enjoy!</p>
 
-<h2>Installation</h2>
+        <h2>Installation</h2>
 
-<p>We use <a href="http://getcomposer.org/">composer</a> for dependency management, run the
-following commands under the project directory to get composer and install the
-dependency.</p>
+        <p>We use <a href="http://getcomposer.org/">composer</a> for dependency management, run the
+          following commands under the project directory to get composer and install the
+          dependency.</p>
 
-<pre><code>curl -s http://getcomposer.org/installer | php
+        <pre><code>curl -s http://getcomposer.org/installer | php
 php composer.phar install
-</code></pre>
+        </code></pre>
 
-<p>See <a href="http://packagist.org/packages/techlivezheng/phpctags">phpctags on packagist</a>
-for more details.</p>
+        <p>See <a href="http://packagist.org/packages/techlivezheng/phpctags">phpctags on packagist</a>
+          for more details.</p>
 
-<h2>Requirements</h2>
+        <h2>Requirements</h2>
 
-<ul>
-<li>PHP CLI 5.3+</li>
-<li><a href="https://github.com/nikic/PHP-Parser">PHP-Parser</a></li>
-</ul><h2>Acknowledgements</h2>
+        <ul>
+          <li>PHP CLI 7.0+</li>
+          <li><a href="https://github.com/nikic/PHP-Parser">PHP-Parser</a></li>
+        </ul>
 
-<ul>
-<li>
-<a href="https://github.com/sanpii">Snapi</a> for composer support.</li>
-<li>
-<a href="https://github.com/DeMarko">DeMarko</a> for memory limit support.</li>
-</ul>
+        <h2>Acknowledgements</h2>
+
+        <ul>
+          <li>
+            <a href="https://github.com/sanpii">Snapi</a> for composer support.</li>
+          <li>
+            <a href="https://github.com/DeMarko">DeMarko</a> for memory limit support.</li>
+          <li>
+            <a href="https://github.com/sandermarechal">Sander Marechal</a> for improve console support.</li>
+          <li>
+            <a href="https://github.com/markwu">Mark Wu</a> for building a stand-alone PHAR executable.</li>
+        </ul>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
   </body>
 </html>
