@@ -45,7 +45,7 @@ for more details.
 Requirements
 ------------
 
-* PHP CLI 5.3+
+* PHP CLI 7.0+
 * [PHP-Parser](https://github.com/nikic/PHP-Parser)
 
 Acknowledgements

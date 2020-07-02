@@ -4,11 +4,11 @@
     "keywords": ["ctags"],
     "type": "library",
     "require": {
-        "php": ">=5.3",
-        "nikic/php-parser": "^4.0"
+        "php": ">=7.0",
+        "nikic/php-parser": "^4.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4"
+        "phpunit/phpunit": "^6.5"
     },
     "autoload": {
         "classmap": ["PHPCtags.class.php"]

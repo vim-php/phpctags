@@ -1,7 +1,6 @@
 language: php
 
 php:
-    - 5.6
     - 7
     - hhvm
 
@@ -15,5 +14,3 @@ script:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - php: 7

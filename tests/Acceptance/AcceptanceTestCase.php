@@ -3,11 +3,11 @@
 namespace tests\PHPCTags\Acceptance;
 
 use Exception;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-abstract class AcceptanceTestCase extends PHPUnit_Framework_TestCase
+abstract class AcceptanceTestCase extends TestCase
 {
     const FORMAT = "<name>\t<file>\t/^<line content>$/;\"\t<short kind>\tline:<line number>\t<scope>\t<access>";
 
