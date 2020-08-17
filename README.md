@@ -1,13 +1,11 @@
-phpctags
-========
-Master  [![Build Status](https://travis-ci.org/vim-php/phpctags.svg)](https://travis-ci.org/vim-php/phpctags?branch=master)  
+# phpctags
 
 An enhanced php [ctags](http://ctags.sourceforge.net/) index file generator
 compatible with http://ctags.sourceforge.net/FORMAT.
 
 Using [PHP_Parser](https://github.com/nikic/PHP-Parser) as PHP syntax parsing
 backend, written in pure PHP. The generated ctags index file contains scope
-and access information about class's methods and properties.
+and access information about classes' methods and properties.
 
 This tool was originally developed to enhance the PHP syntax outline surport
 for vim [tagbar](http://majutsushi.github.com/tagbar/) plugin. The enhanced
@@ -16,26 +14,44 @@ functionality has been included into an addon plugin for tagbar as
 
 Enjoy!
 
-Installation
-------------
-
-## Download
+## Download and installation
 
 ```
 curl -Ss http://vim-php.com/phpctags/install/phpctags.phar > phpctags
-php ./phpctags
+chmod +x phpctags
+```
+
+Optionally one can move it into a directory on the `$PATH`:
+
+```
+sudo mv phpctags /usr/local/bin/
+```
+
+## Usage
+
+Single file:
+
+```
+phpctags phpfile.php > php.tags
+```
+
+Directory with recursive option:
+
+```
+phpctags -R target_directory > php.tags
 ```
 
 ## Build
-> We currently only support building PHAR executable for \*nix like platform
-which provides `make` utility. If you are interested in building an executable
-for other platform, especially for Windows, please help yourself out. It
-should be easy though (Apologize for not being able to provide any help for
-this, I am really not a Windows guy), it also would be great if someone could
-provide a patch for this.
 
-Installation is simple, make sure you have PHP's PHAR extension enabled, then
-just run `make` in the root directory of the source, you will get a `phpctags`
+> We currently only support building PHAR executable for \*nix like platform
+> which provides `make` utility. If you are interested in building an executable
+> for other platform, especially for Windows, please help yourself out. It
+> should be easy though (Apologize for not being able to provide any help for
+> this, I am really not a Windows guy), it also would be great if someone could
+> provide a patch for this.
+
+Installation is straightforward, make sure you have PHP's PHAR extension enabled,
+then run `make` in the root directory of the source, you will get a `phpctags`
 PHAR executable, add it to your `$PATH`, then you can invoke `phpctags`
 directly from anywhere.
 
@@ -53,5 +69,6 @@ Acknowledgements
 
 * [Snapi](https://github.com/sanpii) for composer support.
 * [DeMarko](https://github.com/DeMarko) for memory limit support.
-* [Sander Marechal](https://github.com/sandermarechal) for improve console support
-* [Mark Wu](https://github.com/markwu) for building a stand-alone PHAR executable
+* [Sander Marechal](https://github.com/sandermarechal) for improve console support.
+* [Mark Wu](https://github.com/markwu) for building a stand-alone PHAR executable.
+* [InFog](https://github.com/InFog) for maintaining the project since end of 2019.
