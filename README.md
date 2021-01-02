@@ -32,13 +32,20 @@ sudo mv phpctags /usr/local/bin/
 Single file:
 
 ```
-phpctags phpfile.php > php.tags
+phpctags phpfile.php
+```
+
+Tags will be written to a `tags` file. In order to specify a different tags file
+use the `-f` option:
+
+```
+phpctags -f myphp.tags phpfile.php
 ```
 
 Directory with recursive option:
 
 ```
-phpctags -R target_directory > php.tags
+phpctags -f myphp.tags -R target_directory
 ```
 
 ## Build
