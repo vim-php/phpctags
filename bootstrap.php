@@ -14,8 +14,8 @@ if (file_exists($autoload = __DIR__ . '/vendor/autoload.php')) {
 $version = PHPCtags::VERSION;
 
 $copyright = <<<'EOF'
-Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012 Techlive Zheng
-Addresses: <techlivezheng@gmail.com>, https://github.com/techlivezheng/phpctags
+Exuberant Ctags compatiable PHP enhancement, Copyright (C) 2012-2021 Techlive Zheng
+Addresses: <techlivezheng@gmail.com>, https://github.com/vim-php/phpctags
 EOF;
 
 $options = getopt('aC:f:Nno:RuV', array(
