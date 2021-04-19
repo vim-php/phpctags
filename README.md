@@ -17,7 +17,7 @@ Enjoy!
 ## Download and installation
 
 ```
-curl -Ss https://github.com/vim-php/phpctags/raw/gh-pages/install/phpctags.phar > phpctags
+curl -Ss https://raw.githubusercontent.com/vim-php/phpctags/gh-pages/install/phpctags.phar > phpctags
 chmod +x phpctags
 ```
 
