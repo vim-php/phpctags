@@ -5,7 +5,7 @@ use PhpParser\Node\Expr;
 
 class PHPCtags
 {
-    const VERSION = '0.9.1';
+    const VERSION = '0.10.0';
 
     private $mFile;
 

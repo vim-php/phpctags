@@ -4,7 +4,7 @@ namespace tests\PHPCTags\Acceptance;
 
 final class KindsTest extends AcceptanceTestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

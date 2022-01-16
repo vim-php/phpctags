@@ -1,9 +1,33 @@
+Version 0.10.0
+-------------
+
+* Updated to PHP-Parser 4.13 to support PHP 8.1.
+
+Version 0.9.0
+-------------
+
+* Updated to PHP-Parser 4.10 to support PHP 8.0.
+
+Version 0.8.1
+-------------
+
+* Updated PHPUnit to 6.0.
+* Removed support for PHP 5.x.
+
+Version 0.7.0
+-------------
+
+* Updated to PHP-Parser 4.0.
+
 Version 0.6.1
+-------------
 
 * Follow symlinks below directories. (Previously only symlinks in the top
   directory were followed)
 
 Version 0.6.0
+-------------
+
 * Exclude phpctags when re-building phar
 * Fix typo in README.md
 * Fixed PHPUnit.xml.dist

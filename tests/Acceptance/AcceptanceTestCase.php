@@ -31,7 +31,7 @@ abstract class AcceptanceTestCase extends TestCase
      */
     private $tagsFileContent;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->testDir = __DIR__ . '/../../.test_fs';
 
@@ -122,7 +122,7 @@ abstract class AcceptanceTestCase extends TestCase
             "!_TAG_PROGRAM_AUTHOR\ttechlivezheng\t/techlivezheng@gmail.com/",
             "!_TAG_PROGRAM_NAME\tphpctags\t//",
             "!_TAG_PROGRAM_URL\thttps://github.com/techlivezheng/phpctags\t/official site/",
-            "!_TAG_PROGRAM_VERSION\t0.9.0\t//",
+            "!_TAG_PROGRAM_VERSION\t0.10.0\t//",
         );
 
         $realHeader = array_splice($this->tagsFileContent, 0, count($expectedHeader));
