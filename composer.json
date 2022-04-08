@@ -1,5 +1,5 @@
 {
-    "name": "techlivezheng/phpctags",
+    "name": "vim-php/phpctags",
     "description": "An enhanced php ctags index generator.",
     "keywords": ["ctags"],
     "type": "library",
