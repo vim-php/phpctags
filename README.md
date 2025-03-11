@@ -68,7 +68,7 @@ for more details.
 Requirements
 ------------
 
-* PHP CLI 7.0+
+* PHP CLI 7.4+
 * [PHP-Parser](https://github.com/nikic/PHP-Parser)
 
 Acknowledgements
@@ -78,4 +78,4 @@ Acknowledgements
 * [DeMarko](https://github.com/DeMarko) for memory limit support.
 * [Sander Marechal](https://github.com/sandermarechal) for improve console support.
 * [Mark Wu](https://github.com/markwu) for building a stand-alone PHAR executable.
-* [InFog](https://github.com/InFog) for maintaining the project since end of 2019.
+* [InFog](https://github.com/InFog) for maintaining the project since 2019.
